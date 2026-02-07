@@ -13,8 +13,14 @@ public class GameController : MonoBehaviour
 
     [SerializeField] private RecordsManager _recordsManager = null;
 
+    private void Start()
+    {
+        _player.OnGameEnd += ShowWindowResults;
 
-    private void Awake()
+        EventBus.OnRunStarted += AnalyticRunStart;
+    }
+
+    private void AnalyticRunStart()
     {
         AnalyticManager.StartRun();
         AnalyticManager.LogEvent(
@@ -28,25 +34,10 @@ public class GameController : MonoBehaviour
                 { "run_number", AnalyticManager.RunId }
             }
         );
-
-    }
-    private void Start()
-    {
-        _player.OnGameEnd += ShowWindowResults;
     }
 
-    private void ShowWindowResults(int food, float distance)
+    private void AnalyticRunEnd(int distance, int food)
     {
-        _windowPlayerUI.gameObject.SetActive(false);
-        _windowResults.gameObject.SetActive(true);
-
-        _windowResults._foodText.text = "Food: " + food;
-        _windowResults._distanceText.text = "Distance: " + Mathf.Floor(distance);
-        _windowResults._scoreText.text = "Total Score: " + (food * 10 + Mathf.Floor(distance));
-
-        CheckRecord(_recordsManager._scoreData.playerData.name, 
-            food * 10 + Mathf.FloorToInt(distance), distance);
-
         AnalyticManager.LogEvent(
             "run_end",
             new Dictionary<string, object>
@@ -54,21 +45,40 @@ public class GameController : MonoBehaviour
                 { "session_id", AnalyticManager.SessionId },
                 { "best_distance", _recordsManager._scoreData.playerData.distance },
                 { "best_food", (_recordsManager._scoreData.playerData.score -
-                Mathf.Floor(_recordsManager._scoreData.playerData.distance)) / 10},
-                { "result_distance", distance},
+                _recordsManager._scoreData.playerData.distance) / 10},
+                { "result_distance",distance},
                 { "result_food", food }
             }
         );
     }
 
-    private void CheckRecord(string name, int score, float distance)
+    private void ShowWindowResults(int food, int distance)
+    {
+        distance = Mathf.FloorToInt(distance);
+        _windowPlayerUI.gameObject.SetActive(false);
+        _windowResults.gameObject.SetActive(true);
+
+        _windowResults._foodText.text = "Food: " + food;
+        _windowResults._distanceText.text = "Distance: " + distance;
+        _windowResults._scoreText.text = "Total Score: " + (food * 10 + distance);
+
+        CheckRecord(_recordsManager._scoreData.playerData.name, 
+            food * 10 + distance, distance);
+
+        AnalyticRunEnd(distance, food);
+    }
+
+    private void CheckRecord(string name, int score, int distance)
     {
         _recordsManager.AddScore(name, score, distance);
 
-        _windowResults._newRecordText.gameObject.SetActive(_recordsManager.TrySetNewPersonalRecord(name,score, distance));
+        _windowResults._newRecordText.gameObject.SetActive(
+            _recordsManager.TrySetNewPersonalRecord(name,score, distance));
     }
     private void OnDestroy()
     {
         _player.OnGameEnd -= ShowWindowResults;
+
+        EventBus.OnRunStarted -= AnalyticRunStart;
     }
 }

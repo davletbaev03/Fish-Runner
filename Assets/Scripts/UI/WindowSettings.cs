@@ -30,7 +30,7 @@ public class WindowSettings : MonoBehaviour
 
     private void OnMusicToggle(bool isOn)
     {
-        audioMixer.SetFloat(MUSIC_PARAM, isOn ? 0f : -80f); // 0 dB = норм, -80 dB = тишина
+        audioMixer.SetFloat(MUSIC_PARAM, isOn ? 0f : -80f);
         PlayerPrefs.SetInt("MusicEnabled", isOn ? 1 : 0);
     }
 

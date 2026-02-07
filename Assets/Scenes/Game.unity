@@ -4667,9 +4667,17 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 3069827508965220354, guid: 1580bcd01260cca4cb042333e56b280d, type: 3}
+      propertyPath: Skeleton
+      value: 
+      objectReference: {fileID: 1628119944}
+    - target: {fileID: 3069827508965220354, guid: 1580bcd01260cca4cb042333e56b280d, type: 3}
       propertyPath: skeleton
       value: 
       objectReference: {fileID: 1628119944}
+    - target: {fileID: 3069827508965220354, guid: 1580bcd01260cca4cb042333e56b280d, type: 3}
+      propertyPath: _gameObject
+      value: 
+      objectReference: {fileID: 11400000, guid: c2bb8edd3635a4445935331edf2a8e12, type: 2}
     - target: {fileID: 3069827508965220354, guid: 1580bcd01260cca4cb042333e56b280d, type: 3}
       propertyPath: _playerAudio
       value: 

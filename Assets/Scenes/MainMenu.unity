@@ -725,7 +725,6 @@ GameObject:
   - component: {fileID: 568954726}
   - component: {fileID: 568954725}
   - component: {fileID: 568954724}
-  - component: {fileID: 568954727}
   m_Layer: 5
   m_Name: WindowLeaderboard
   m_TagString: Untagged
@@ -769,7 +768,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _exitButton: {fileID: 748798869}
-  _recordsManager: {fileID: 568954727}
+  _recordsManager: {fileID: 1948816495}
   _content: {fileID: 1429890768}
   _itemPrefab: {fileID: 1958383208563581968, guid: c0b678a78170bab40bd24dc668906b6d, type: 3}
 --- !u!114 &568954725
@@ -810,24 +809,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 568954722}
   m_CullTransparentMesh: 1
---- !u!114 &568954727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 568954722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ff8a23bdafa48f4aa408c87a58cb7ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _scoreData:
-    scores: []
-    playerData:
-      name: 
-      score: 0
-      distance: 0
 --- !u!1 &673625318
 GameObject:
   m_ObjectHideFlags: 0
@@ -3379,6 +3360,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1948816494}
   - component: {fileID: 1948816493}
+  - component: {fileID: 1948816495}
   m_Layer: 0
   m_Name: NotificationManager
   m_TagString: Untagged
@@ -3413,6 +3395,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1948816495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1948816492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ff8a23bdafa48f4aa408c87a58cb7ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scoreData:
+    scores: []
+    playerData:
+      name: 
+      score: 0
+      distance: 0
 --- !u!1 &1998313149
 GameObject:
   m_ObjectHideFlags: 0

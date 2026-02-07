@@ -12,6 +12,7 @@ public class ScoreEntry
     public float distance;
 
     public ScoreEntry() { }
+
     public ScoreEntry(string name, int score, float distance)
     {
         this.name = name;
@@ -34,19 +35,21 @@ public class RecordsManager : MonoBehaviour
 
     private const int MAX_SCORES = 5;
 
-
     public List<ScoreEntry> GetScores
     {
         get { return _scoreData.scores; }
         set { _scoreData.scores = value; }
     }
 
-    private void Awake()
+    private void Start()
     {
         _filePath = Path.Combine(Application.persistentDataPath, "scores.json");
         //Clear();
         Load();
         InitPlayer();
+
+        EventBus.OnSessionStarted?.Invoke();
+        EventBus.OnRunStarted?.Invoke();
     }
 
     private void InitPlayer()
@@ -55,7 +58,7 @@ public class RecordsManager : MonoBehaviour
         {
             _scoreData.playerData.name = GeneratePlayerName();
             _scoreData.playerData.score = 0;
-            _scoreData.playerData.distance = 0f;
+            _scoreData.playerData.distance = 0;
             Save();
         }
     }

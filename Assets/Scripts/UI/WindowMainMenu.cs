@@ -17,8 +17,17 @@ public class WindowMainMenu : MonoBehaviour
     [SerializeField] private WindowRecords _windowRecords;
     [SerializeField] private WindowSettings _windowSettings;
 
-    
-    private void OnApplicationFocus(bool focus)
+    private void Awake()
+    {
+        _startButton.onClick.AddListener(GameLaunch);
+        _recordsButton.onClick.AddListener(ShowRecords);
+        _settingsButton.onClick.AddListener(ShowSettings);
+
+        EventBus.OnSessionStarted += AnalyticAppStart;
+        Debug.LogError("Event sub");
+    }
+
+    private void AnalyticAppStart()
     {
         AnalyticManager.StartSession();
 
@@ -27,17 +36,11 @@ public class WindowMainMenu : MonoBehaviour
             new Dictionary<string, object>
             {
             { "session_id", AnalyticManager.SessionId },
-            { "best_distance", _windowRecords._recordsManager._scoreData.playerData.distance },
-            { "best_food", (_windowRecords._recordsManager._scoreData.playerData.score - 
-            _windowRecords._recordsManager._scoreData.playerData.distance) / 10}
+            { "best_distance", Mathf.FloorToInt(_windowRecords._recordsManager._scoreData.playerData.distance) },
+            { "best_food", (_windowRecords._recordsManager._scoreData.playerData.score -
+            Mathf.FloorToInt(_windowRecords._recordsManager._scoreData.playerData.distance)) / 10}
             }
         );
-    }
-    void Start()
-    {
-        _startButton.onClick.AddListener(GameLaunch);
-        _recordsButton.onClick.AddListener(ShowRecords);
-        _settingsButton.onClick.AddListener(ShowSettings);
     }
 
     private void GameLaunch()
@@ -52,5 +55,10 @@ public class WindowMainMenu : MonoBehaviour
     private void ShowSettings()
     {
         _windowSettings.gameObject.SetActive(true);
+    }
+
+    private void OnDestroy()
+    {
+        EventBus.OnSessionStarted -= AnalyticAppStart;
     }
 }

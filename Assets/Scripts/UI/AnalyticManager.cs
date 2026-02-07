@@ -7,14 +7,29 @@ public static class AnalyticManager
     public static string SessionId { get; private set; }
     public static string RunId { get; private set; }
 
+    private const string SessionCounterKey = "SessionCounter";
+    private const string RunCounterKey = "RunCounter";
+
     public static void StartSession()
     {
-        SessionId = System.Guid.NewGuid().ToString();
+        int counter = PlayerPrefs.GetInt(SessionCounterKey, 0);
+        counter++;
+
+        PlayerPrefs.SetInt(SessionCounterKey, counter);
+        PlayerPrefs.Save();
+
+        SessionId = $"session_{counter}";
     }
 
     public static void StartRun()
     {
-        RunId = System.Guid.NewGuid().ToString();
+        int counter = PlayerPrefs.GetInt(RunCounterKey, 0);
+        counter++;
+
+        PlayerPrefs.SetInt(RunCounterKey, counter);
+        PlayerPrefs.Save();
+
+        RunId = $"run_{counter}";
     }
 
     public static void LogEvent(string eventName, Dictionary<string, object> data)

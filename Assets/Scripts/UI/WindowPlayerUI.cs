@@ -25,10 +25,7 @@ public class WindowPlayerUI : MonoBehaviour
 
     private void Start()
     {
-        if(_recordsManager._scoreData.playerData.distance != 0)
-            _personalBest = _recordsManager._scoreData.playerData.distance;
-        else
-            _recordUI.gameObject.SetActive(false);
+        EventBus.OnRunStarted += ProgressBarShow;
 
         _player.OnHealthChanged += UpdateHealth;
         _player.OnPointsChanged += UpdateScore;
@@ -40,7 +37,7 @@ public class WindowPlayerUI : MonoBehaviour
     {
         if (_recordUI == null || _personalBest == 0)
             return;
-        if (_player.transform.position.x > _personalBest)
+        if (Mathf.FloorToInt(_player.transform.position.x) > _personalBest)
         {
             Destroy(_recordUI);
         }
@@ -56,6 +53,14 @@ public class WindowPlayerUI : MonoBehaviour
             _playerHealth[healthPoints].GetComponent<SpriteRenderer>().sprite = _lostHealth;
     }
 
+    private void ProgressBarShow()
+    {
+        if (_recordsManager._scoreData.playerData.distance != 0)
+            _personalBest = _recordsManager._scoreData.playerData.distance;
+        else
+            _recordUI.gameObject.SetActive(false);
+    }
+
     private void UpdateScore(int score)
     {
         _foodText.text = score.ToString();
@@ -63,7 +68,7 @@ public class WindowPlayerUI : MonoBehaviour
     private void ShowWindowPause()
     {
         Time.timeScale = 0f;
-        _player.skeleton.AnimationState.SetAnimation(0, "Idle", true);
+        _player.Skeleton.AnimationState.SetAnimation(0, "Idle", true);
         _windowPause.gameObject.SetActive(true);
         this.gameObject.SetActive(false);
 
@@ -73,6 +78,7 @@ public class WindowPlayerUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        EventBus.OnRunStarted -= ProgressBarShow;
         _player.OnHealthChanged -= UpdateHealth;
         _player.OnPointsChanged -= UpdateScore;
     }

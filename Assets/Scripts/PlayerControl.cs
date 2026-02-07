@@ -25,13 +25,13 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField] private PlayerAudio _playerAudio = null;
 
-    [SerializeField] public SkeletonAnimation skeleton;
+    [SerializeField] public SkeletonAnimation Skeleton;
 
     public event Action<int,bool> OnHealthChanged;
 
     public event Action<int> OnPointsChanged;
 
-    public event Action<int, float> OnGameEnd;
+    public event Action<int, int> OnGameEnd;
 
     public float Speed
     {
@@ -52,7 +52,7 @@ public class PlayerControl : MonoBehaviour
     private void Start()
     {
         AccelerateByTime();
-        skeleton.AnimationState.SetAnimation(0, "Swim_Normal", true);
+        Skeleton.AnimationState.SetAnimation(0, "Swim_Normal", true);
     }
 
     void Update()
@@ -135,8 +135,8 @@ public class PlayerControl : MonoBehaviour
         switch(collision.tag)
         {
             case ("Food"):
-                skeleton.AnimationState.SetAnimation(0, "Eat", false);
-                skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 0);
+                Skeleton.AnimationState.SetAnimation(0, "Eat", false);
+                Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 0);
 
                 _playerAudio.PlayEat();
 
@@ -150,8 +150,8 @@ public class PlayerControl : MonoBehaviour
             case ("Trash"):
                 if (DateTime.Now - _startIFramesTime > TimeSpan.FromSeconds(3))
                 {
-                    skeleton.AnimationState.SetAnimation(0, "Damage", false);
-                    skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 2);
+                    Skeleton.AnimationState.SetAnimation(0, "Damage", false);
+                    Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 2);
 
                     _healthPoints--;
                     _startIFramesTime = DateTime.Now;
@@ -160,14 +160,14 @@ public class PlayerControl : MonoBehaviour
                 }
                 if (_healthPoints < 1)
                 {
-                    skeleton.AnimationState.SetAnimation(0, "Death", false);
-                    skeleton.AnimationState.AddAnimation(0, "Death_Idle", true,0);
+                    Skeleton.AnimationState.SetAnimation(0, "Death", false);
+                    Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true,0);
 
                     _playerAudio.PlayDeath();
                     _speed = 0f;
 
                     _isGameEnd = true;
-                    OnGameEnd?.Invoke(_points, transform.position.x);
+                    OnGameEnd?.Invoke(_points, Mathf.FloorToInt(transform.position.x));
                 }
                 else
                 {
@@ -176,20 +176,20 @@ public class PlayerControl : MonoBehaviour
                 }
 
                 Destroy(collision.gameObject);
-                Debug.LogError($"Collision - health: {_healthPoints}");
+                //Debug.LogError($"Collision - health: {_healthPoints}");
                 break;
 
             case ("Net"):
                 OnHealthChanged?.Invoke(_healthPoints, true);
 
-                skeleton.AnimationState.SetAnimation(0, "Death", false);
-                skeleton.AnimationState.AddAnimation(0, "Death_Idle", true, 0);
+                Skeleton.AnimationState.SetAnimation(0, "Death", false);
+                Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true, 0);
 
                 _speed = 0f;
                 _playerAudio.PlayDeath();
 
                 _isGameEnd = true;
-                OnGameEnd?.Invoke(_points, transform.position.x);
+                OnGameEnd?.Invoke(_points, Mathf.FloorToInt(transform.position.x));
                 //Debug.LogError("Game Over");
                 break;
 
@@ -206,7 +206,7 @@ public class PlayerControl : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             bool on = Mathf.FloorToInt(elapsed / interval) % 2 == 0;
-            skeleton.Skeleton.SetColor(on ? Color.white : Color.red);
+            Skeleton.Skeleton.SetColor(on ? Color.white : Color.red);
         }, 1f, duration)
         .SetEase(Ease.Linear);
     }
@@ -214,6 +214,6 @@ public class PlayerControl : MonoBehaviour
     public void StopFlash()
     {
         _flashSequence?.Kill();
-        skeleton.Skeleton.SetColor(Color.white);
+        Skeleton.Skeleton.SetColor(Color.white);
     }
 }
