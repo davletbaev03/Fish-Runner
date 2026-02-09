@@ -1,17 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 
 public class PlayerAudio : MonoBehaviour
 {
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip moveSideClip;
-    [SerializeField] private AudioClip eatClip;
-    [SerializeField] private AudioClip deathClip;
-    [SerializeField] private AudioClip hitClip;
+    [SerializeField] public SoundConfig moveSideClip;
+    [SerializeField] public SoundConfig deathClip;
 
-    public void PlayMoveSide() => audioSource.PlayOneShot(moveSideClip);
-    public void PlayEat() => audioSource.PlayOneShot(eatClip);
-    public void PlayDeath() => audioSource.PlayOneShot(deathClip);
-    public void PlayHit() => audioSource.PlayOneShot(hitClip);
+    public void Play(SoundConfig sound)
+    {
+        if (sound == null || sound.clip == null)
+            return;
+
+        audioSource.pitch = sound.pitch;
+        audioSource.volume = sound.volume;
+        audioSource.PlayOneShot(sound.clip);
+    }
 }

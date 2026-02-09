@@ -1,9 +1,10 @@
+using DG.Tweening;
+using Spine.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
-using DG.Tweening;
-using Spine.Unity;
 
 public class PlayerControl : MonoBehaviour
 {
@@ -12,16 +13,15 @@ public class PlayerControl : MonoBehaviour
 
     private float _minSwipeDist = 1f;
     private bool _isMovingSide = false;
-    private bool _isGameEnd = false;
+    public bool isGameEnd = false;
 
     private DateTime _startIFramesTime = DateTime.Now;
     private Tween _flashSequence;
 
-    [SerializeField] private int _points = 0;
-    [SerializeField] private int _healthPoints = 3;
-    [SerializeField] private float _speed = 4f;
-
-    [SerializeField] private float _acceleration = 1.1f;
+    [SerializeField] private PlayerParams _playerParams;
+    private float _speed;
+    private int _food;
+    private int _healthPoints;
 
     [SerializeField] private PlayerAudio _playerAudio = null;
 
@@ -36,7 +36,6 @@ public class PlayerControl : MonoBehaviour
     public float Speed
     {
         get { return _speed; }
-        set { _speed = value; }
     }
 
     public int HealthPoints
@@ -46,18 +45,22 @@ public class PlayerControl : MonoBehaviour
 
     public int Food
     {
-        get { return _points; }   
+        get { return _food; }   
     }
 
     private void Start()
     {
+        _speed = _playerParams.speed;
+        _food = _playerParams.points;
+        _healthPoints = _playerParams.healthPoints;
+
         AccelerateByTime();
         Skeleton.AnimationState.SetAnimation(0, "Swim_Normal", true);
     }
 
     void Update()
     {
-        if (_isGameEnd)
+        if (isGameEnd)
             return;
 
         this.transform.Translate(Vector2.left * _speed * Time.deltaTime);
@@ -91,7 +94,8 @@ public class PlayerControl : MonoBehaviour
     {
         DOVirtual.DelayedCall(10f, () =>
         {
-            DOTween.To(() => _speed, x => _speed = x, _speed * _acceleration, 2f)
+            DOTween.To(() => _speed, x => _speed = x,
+                _speed * _playerParams.acceleration, 2f)
             .SetEase(Ease.OutQuad);
 
             if (_speed < 12f)
@@ -110,7 +114,7 @@ public class PlayerControl : MonoBehaviour
 
         if (!_isMovingSide && swipeDistY > 0 && transform.position.y < 3)
         {
-            _playerAudio.PlayMoveSide();
+            _playerAudio.Play(_playerAudio.moveSideClip);
 
             _isMovingSide = true;
             transform.DOMoveY(transform.position.y + 2f, 0.2f).SetEase(Ease.OutQuad)
@@ -118,7 +122,7 @@ public class PlayerControl : MonoBehaviour
         }
         else if (!_isMovingSide && swipeDistY < 0 && transform.position.y > -3)
         {
-            _playerAudio.PlayMoveSide();
+            _playerAudio.Play(_playerAudio.moveSideClip);
 
             _isMovingSide = true;
             transform.DOMoveY(transform.position.y - 2f, 0.2f).SetEase(Ease.OutQuad)
@@ -126,74 +130,134 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    //private void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    if (collision == null)
+    //        return;
+
+    //    Debug.LogError("Collision");
+    //    switch(collision.tag)
+    //    {
+    //        case ("Food"):
+    //            Skeleton.AnimationState.SetAnimation(0, "Eat", false);
+    //            Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 0);
+
+    //            _playerAudio.PlayEat();
+
+    //            Destroy(collision.gameObject);
+    //            _food++;
+
+    //            OnPointsChanged?.Invoke(_food);
+    //            break;
+
+    //        case ("Coral"):
+    //        case ("Trash"):
+    //            if (DateTime.Now - _startIFramesTime > TimeSpan.FromSeconds(3))
+    //            {
+    //                Skeleton.AnimationState.SetAnimation(0, "Damage", false);
+    //                Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 2);
+
+    //                _healthPoints--;
+    //                _startIFramesTime = DateTime.Now;
+
+    //                OnHealthChanged?.Invoke(_healthPoints,false);
+    //            }
+    //            if (_healthPoints < 1)
+    //            {
+    //                Skeleton.AnimationState.SetAnimation(0, "Death", false);
+    //                Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true,0);
+
+    //                _playerAudio.PlayDeath();
+    //                _speed = 0f;
+
+    //                _isGameEnd = true;
+    //                OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+    //            }
+    //            else
+    //            {
+    //                _playerAudio.PlayHit();
+    //                IFramesGlowing(2f);
+    //            }
+
+    //            Destroy(collision.gameObject);
+    //            //Debug.LogError($"Collision - health: {_healthPoints}");
+    //            break;
+
+    //        case ("Net"):
+    //            OnHealthChanged?.Invoke(_healthPoints, true);
+
+    //            Skeleton.AnimationState.SetAnimation(0, "Death", false);
+    //            Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true, 0);
+
+    //            _speed = 0f;
+    //            _playerAudio.PlayDeath();
+
+    //            _isGameEnd = true;
+    //            OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+    //            //Debug.LogError("Game Over");
+    //            break;
+
+    //    }
+    //}
+
+    public void ApplyInteraction(PlayerInteractionConfig config, GameObject source)
     {
-        if (collision == null)
-            return;
+        if (config.addPoints != 0)
+            AddPoints(config.addPoints, source);
 
-        Debug.LogError("Collision");
-        switch(collision.tag)
+        if (config.damage > 0)
+            TakeDamage(config.damage, source);
+
+        if (config.killInstant || _healthPoints < 1)
+            PlayerDeath();
+
+        if (!string.IsNullOrEmpty(config.animation))
+            if (_healthPoints > 0)
+                PlayAnimation(config.animation, config.animation2);
+            else
+                PlayAnimation("Death", "Death_Idle");
+
+        if (config.sound != null)
+                _playerAudio.Play(config.sound);
+
+        if (config.destroySource)
+            Destroy(source);
+    }
+
+    private void AddPoints(int points, GameObject collision)
+    {
+        Destroy(collision.gameObject);
+        _food++;
+
+        OnPointsChanged?.Invoke(_food);
+    }
+
+    private void TakeDamage(int damage, GameObject collision)
+    {
+        if (DateTime.Now - _startIFramesTime > TimeSpan.FromSeconds(3))
         {
-            case ("Food"):
-                Skeleton.AnimationState.SetAnimation(0, "Eat", false);
-                Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 0);
+            _healthPoints--;
+            _startIFramesTime = DateTime.Now;
 
-                _playerAudio.PlayEat();
-
-                Destroy(collision.gameObject);
-                _points++;
-
-                OnPointsChanged?.Invoke(_points);
-                break;
-
-            case ("Coral"):
-            case ("Trash"):
-                if (DateTime.Now - _startIFramesTime > TimeSpan.FromSeconds(3))
-                {
-                    Skeleton.AnimationState.SetAnimation(0, "Damage", false);
-                    Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 2);
-
-                    _healthPoints--;
-                    _startIFramesTime = DateTime.Now;
-
-                    OnHealthChanged?.Invoke(_healthPoints,false);
-                }
-                if (_healthPoints < 1)
-                {
-                    Skeleton.AnimationState.SetAnimation(0, "Death", false);
-                    Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true,0);
-
-                    _playerAudio.PlayDeath();
-                    _speed = 0f;
-
-                    _isGameEnd = true;
-                    OnGameEnd?.Invoke(_points, Mathf.FloorToInt(transform.position.x));
-                }
-                else
-                {
-                    _playerAudio.PlayHit();
-                    IFramesGlowing(2f);
-                }
-
-                Destroy(collision.gameObject);
-                //Debug.LogError($"Collision - health: {_healthPoints}");
-                break;
-
-            case ("Net"):
-                OnHealthChanged?.Invoke(_healthPoints, true);
-
-                Skeleton.AnimationState.SetAnimation(0, "Death", false);
-                Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true, 0);
-
-                _speed = 0f;
-                _playerAudio.PlayDeath();
-
-                _isGameEnd = true;
-                OnGameEnd?.Invoke(_points, Mathf.FloorToInt(transform.position.x));
-                //Debug.LogError("Game Over");
-                break;
-
+            OnHealthChanged?.Invoke(_healthPoints, false);
         }
+        if (_healthPoints < 1)
+        {
+            PlayAnimation("Death", "Death_Idle");
+
+            _playerAudio.Play(_playerAudio.deathClip);
+            _speed = 0f;
+
+            isGameEnd = true;
+            OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+        }
+        else
+        {
+            IFramesGlowing(2f);
+        }
+
+        Destroy(collision.gameObject);
+        //Debug.LogError($"Collision - health: {_healthPoints}");
     }
 
     private void IFramesGlowing(float duration, float interval = 0.1f)
@@ -215,5 +279,22 @@ public class PlayerControl : MonoBehaviour
     {
         _flashSequence?.Kill();
         Skeleton.Skeleton.SetColor(Color.white);
+    }
+
+    private void PlayerDeath()
+    {
+        OnHealthChanged?.Invoke(_healthPoints, true);
+
+        _speed = 0f;
+
+        isGameEnd = true;
+        OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+        //Debug.LogError("Game Over");
+    }
+
+    private void PlayAnimation(string animation, string animation2)
+    {
+        Skeleton.AnimationState.SetAnimation(0, animation, false);
+        Skeleton.AnimationState.AddAnimation(0, animation2, true, 0);
     }
 }
