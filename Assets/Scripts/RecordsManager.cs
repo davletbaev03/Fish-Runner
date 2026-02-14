@@ -33,6 +33,7 @@ public class RecordsManager : MonoBehaviour
     private string _filePath;
     public ScoreData _scoreData;
 
+    private string FILE_NAME = "scores.json";
     private const int MAX_SCORES = 5;
 
     public List<ScoreEntry> GetScores
@@ -68,14 +69,16 @@ public class RecordsManager : MonoBehaviour
         int index = 0;
 
         string resultName = "Player";
+        string currentName = "Player";
 
         do
         {
             index++;
-            resultName = $"{resultName}_{index}";
+            currentName = $"{resultName}_{index}";
         } 
-        while (_scoreData.scores.Any(s => s.name == resultName));
+        while (_scoreData.scores.Any(s => s.name == currentName));
 
+        resultName = currentName;
         return resultName;
     }
 
@@ -120,20 +123,15 @@ public class RecordsManager : MonoBehaviour
 
     private void Save()
     {
-        string json = JsonUtility.ToJson(_scoreData, true);
-        File.WriteAllText(_filePath, json);
+        SaveLoadService.Save(_scoreData, FILE_NAME);
     }
 
     private void Load()
     {
-        if (File.Exists(_filePath))
+        if (!SaveLoadService.TryLoad(FILE_NAME, out _scoreData))
         {
-            string json = File.ReadAllText(_filePath);
-            _scoreData = JsonUtility.FromJson<ScoreData>(json);
-        }
-        else
-        {
-            Clear();
+            _scoreData = new ScoreData();
+            Save();
         }
     }
 
