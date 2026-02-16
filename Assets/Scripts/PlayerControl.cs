@@ -31,8 +31,6 @@ public class PlayerControl : MonoBehaviour
 
     public event Action<int> OnPointsChanged;
 
-    public event Action<int, int> OnGameEnd;
-
     public float Speed
     {
         get { return _speed; }
@@ -130,76 +128,6 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    //private void OnTriggerEnter2D(Collider2D collision)
-    //{
-    //    if (collision == null)
-    //        return;
-
-    //    Debug.LogError("Collision");
-    //    switch(collision.tag)
-    //    {
-    //        case ("Food"):
-    //            Skeleton.AnimationState.SetAnimation(0, "Eat", false);
-    //            Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 0);
-
-    //            _playerAudio.PlayEat();
-
-    //            Destroy(collision.gameObject);
-    //            _food++;
-
-    //            OnPointsChanged?.Invoke(_food);
-    //            break;
-
-    //        case ("Coral"):
-    //        case ("Trash"):
-    //            if (DateTime.Now - _startIFramesTime > TimeSpan.FromSeconds(3))
-    //            {
-    //                Skeleton.AnimationState.SetAnimation(0, "Damage", false);
-    //                Skeleton.AnimationState.AddAnimation(0, "Swim_Normal", true, 2);
-
-    //                _healthPoints--;
-    //                _startIFramesTime = DateTime.Now;
-
-    //                OnHealthChanged?.Invoke(_healthPoints,false);
-    //            }
-    //            if (_healthPoints < 1)
-    //            {
-    //                Skeleton.AnimationState.SetAnimation(0, "Death", false);
-    //                Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true,0);
-
-    //                _playerAudio.PlayDeath();
-    //                _speed = 0f;
-
-    //                _isGameEnd = true;
-    //                OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
-    //            }
-    //            else
-    //            {
-    //                _playerAudio.PlayHit();
-    //                IFramesGlowing(2f);
-    //            }
-
-    //            Destroy(collision.gameObject);
-    //            //Debug.LogError($"Collision - health: {_healthPoints}");
-    //            break;
-
-    //        case ("Net"):
-    //            OnHealthChanged?.Invoke(_healthPoints, true);
-
-    //            Skeleton.AnimationState.SetAnimation(0, "Death", false);
-    //            Skeleton.AnimationState.AddAnimation(0, "Death_Idle", true, 0);
-
-    //            _speed = 0f;
-    //            _playerAudio.PlayDeath();
-
-    //            _isGameEnd = true;
-    //            OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
-    //            //Debug.LogError("Game Over");
-    //            break;
-
-    //    }
-    //}
-
     public void ApplyInteraction(PlayerInteractionConfig config, GameObject source)
     {
         if (config.addPoints != 0)
@@ -249,7 +177,7 @@ public class PlayerControl : MonoBehaviour
             _speed = 0f;
 
             isGameEnd = true;
-            OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+            EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
         }
         else
         {
@@ -288,7 +216,7 @@ public class PlayerControl : MonoBehaviour
         _speed = 0f;
 
         isGameEnd = true;
-        OnGameEnd?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+        EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
         //Debug.LogError("Game Over");
     }
 

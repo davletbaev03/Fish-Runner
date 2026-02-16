@@ -10,7 +10,7 @@ public static class EventBus
 
     public static Action OnRunStarted;
     public static Action OnRunPaused;
-    public static Action OnRunEnded;
+    public static Action<int,int> OnRunEnded;
 
     public static Action OnPlayerDied;
 

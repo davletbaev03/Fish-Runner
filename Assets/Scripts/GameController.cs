@@ -3,11 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static Spine.Unity.Examples.SpineboyFootplanter;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] private PlayerControl _player = null;
     [SerializeField] private WindowResults _windowResults = null;
     [SerializeField] private WindowPlayerUI _windowPlayerUI = null;
 
@@ -15,8 +13,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        _player.OnGameEnd += ShowWindowResults;
-
+        EventBus.OnRunEnded += ShowWindowResults;
         EventBus.OnRunStarted += AnalyticRunStart;
     }
 
@@ -77,7 +74,7 @@ public class GameController : MonoBehaviour
     }
     private void OnDestroy()
     {
-        _player.OnGameEnd -= ShowWindowResults;
+        EventBus.OnRunEnded -= ShowWindowResults;
 
         EventBus.OnRunStarted -= AnalyticRunStart;
     }
