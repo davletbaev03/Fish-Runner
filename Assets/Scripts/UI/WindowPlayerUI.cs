@@ -13,7 +13,7 @@ public class WindowPlayerUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI _foodText = null;
 
-    [SerializeField] PlayerControl _player;
+    [SerializeField] IPlayerService _player;
 
     [SerializeField] private List<GameObject> _playerHealth;
     [SerializeField] private Sprite _lostHealth;
@@ -25,10 +25,11 @@ public class WindowPlayerUI : MonoBehaviour
 
     private void Start()
     {
+        _player = ServiceLocator.Get<IPlayerService>();
         EventBus.OnRunStarted += ProgressBarShow;
 
-        _player.OnHealthChanged += UpdateHealth;
-        _player.OnPointsChanged += UpdateScore;
+        EventBus.OnHealthChanged += UpdateHealth;
+        EventBus.OnPointsChanged += UpdateScore;
 
         _buttonPause.onClick.AddListener(ShowWindowPause);
     }
@@ -37,12 +38,12 @@ public class WindowPlayerUI : MonoBehaviour
     {
         if (_recordUI == null || _personalBest == 0)
             return;
-        if (Mathf.FloorToInt(_player.transform.position.x) > _personalBest)
+        if (Mathf.FloorToInt(_player.Position.x) > _personalBest)
         {
             Destroy(_recordUI);
         }
         _slider.transform.localScale
-            = new Vector3(40 * _player.transform.position.x/_personalBest, 1,0);
+            = new Vector3(40 * _player.Position.x/_personalBest, 1,0);
     }
     private void UpdateHealth(int healthPoints, bool instantDeath)
     {
@@ -65,10 +66,11 @@ public class WindowPlayerUI : MonoBehaviour
     {
         _foodText.text = score.ToString();
     }
+
     private void ShowWindowPause()
     {
         Time.timeScale = 0f;
-        _player.Skeleton.AnimationState.SetAnimation(0, "Idle", true);
+        EventBus.ChangeSkeletonAnim("Swim_Normal", "Idle");
         _windowPause.gameObject.SetActive(true);
         this.gameObject.SetActive(false);
 
@@ -79,7 +81,7 @@ public class WindowPlayerUI : MonoBehaviour
     private void OnDestroy()
     {
         EventBus.OnRunStarted -= ProgressBarShow;
-        _player.OnHealthChanged -= UpdateHealth;
-        _player.OnPointsChanged -= UpdateScore;
+        EventBus.OnHealthChanged -= UpdateHealth;
+        EventBus.OnPointsChanged -= UpdateScore;
     }
 }

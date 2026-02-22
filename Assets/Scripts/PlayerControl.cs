@@ -6,14 +6,15 @@ using System.Collections.Generic;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
+
 public class PlayerControl : MonoBehaviour
 {
     private Vector2 _startPos;
     private Vector2 _endPos;
-
+    
     private float _minSwipeDist = 1f;
     private bool _isMovingSide = false;
-    public bool isGameEnd = false;
+    public bool IsGameEnd = false;
 
     private DateTime _startIFramesTime = DateTime.Now;
     private Tween _flashSequence;
@@ -27,9 +28,10 @@ public class PlayerControl : MonoBehaviour
 
     [SerializeField] public SkeletonAnimation Skeleton;
 
-    public event Action<int,bool> OnHealthChanged;
-
-    public event Action<int> OnPointsChanged;
+    public Vector3 Position
+    {
+        get { return transform.position; }
+    }
 
     public float Speed
     {
@@ -48,6 +50,8 @@ public class PlayerControl : MonoBehaviour
 
     private void Start()
     {
+        EventBus.ChangeSkeletonAnim += PlayAnimation;
+
         _speed = _playerParams.speed;
         _food = _playerParams.points;
         _healthPoints = _playerParams.healthPoints;
@@ -58,7 +62,8 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        if (isGameEnd)
+
+        if (IsGameEnd)
             return;
 
         this.transform.Translate(Vector2.left * _speed * Time.deltaTime);
@@ -155,9 +160,9 @@ public class PlayerControl : MonoBehaviour
     private void AddPoints(int points, GameObject collision)
     {
         Destroy(collision.gameObject);
-        _food++;
+        _food+= points;
 
-        OnPointsChanged?.Invoke(_food);
+        EventBus.OnPointsChanged?.Invoke(_food);
     }
 
     private void TakeDamage(int damage, GameObject collision)
@@ -167,7 +172,7 @@ public class PlayerControl : MonoBehaviour
             _healthPoints--;
             _startIFramesTime = DateTime.Now;
 
-            OnHealthChanged?.Invoke(_healthPoints, false);
+            EventBus.OnHealthChanged?.Invoke(_healthPoints, false);
         }
         if (_healthPoints < 1)
         {
@@ -176,7 +181,7 @@ public class PlayerControl : MonoBehaviour
             _playerAudio.Play(_playerAudio.deathClip);
             _speed = 0f;
 
-            isGameEnd = true;
+            IsGameEnd = true;
             EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
         }
         else
@@ -211,11 +216,11 @@ public class PlayerControl : MonoBehaviour
 
     private void PlayerDeath()
     {
-        OnHealthChanged?.Invoke(_healthPoints, true);
+        EventBus.OnHealthChanged?.Invoke(_healthPoints, true);
 
         _speed = 0f;
 
-        isGameEnd = true;
+        IsGameEnd = true;
         EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
         //Debug.LogError("Game Over");
     }
@@ -224,5 +229,10 @@ public class PlayerControl : MonoBehaviour
     {
         Skeleton.AnimationState.SetAnimation(0, animation, false);
         Skeleton.AnimationState.AddAnimation(0, animation2, true, 0);
+    }
+
+    private void OnDestroy()
+    {
+        EventBus.ChangeSkeletonAnim -= PlayAnimation;
     }
 }

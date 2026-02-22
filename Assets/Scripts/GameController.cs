@@ -72,6 +72,7 @@ public class GameController : MonoBehaviour
         _windowResults._newRecordText.gameObject.SetActive(
             _recordsManager.TrySetNewPersonalRecord(name,score, distance));
     }
+
     private void OnDestroy()
     {
         EventBus.OnRunEnded -= ShowWindowResults;

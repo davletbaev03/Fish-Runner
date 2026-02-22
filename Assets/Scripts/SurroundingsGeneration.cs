@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SurroundingsGeneration : MonoBehaviour
 {
-    [SerializeField] private PlayerControl _player = null;
+    private IPlayerService _player = null;
 
     [SerializeField] private List<GameObject> _obstacles = new List<GameObject>();
     [SerializeField] private List<GameObject> _food = new List<GameObject>();
@@ -14,6 +14,8 @@ public class SurroundingsGeneration : MonoBehaviour
 
     void Start()
     {
+        _player = ServiceLocator.Get<IPlayerService>();
+
         InstantiateObstacles();
         InstantiateFood();
     }
@@ -22,7 +24,7 @@ public class SurroundingsGeneration : MonoBehaviour
 
     void Update()
     {
-        if (_player.isGameEnd)
+        if (_player.IsGameEnd)
             return;
 
         if(Time.timeScale > 0f && (DateTime.Now - _spawnTime).TotalSeconds > 18f/_player.Speed && UnityEngine.Random.Range(1, 100) > 50)
@@ -35,7 +37,7 @@ public class SurroundingsGeneration : MonoBehaviour
     private void InstantiateFood()
     {
         int foodNumber = UnityEngine.Random.Range(0, _food.Count);
-        Vector3 spawnPosition = new Vector3(_player.transform.position.x + UnityEngine.Random.Range(15, 17),
+        Vector3 spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(15, 17),
                 UnityEngine.Random.Range(-2, 3) * 2, 0);
 
         Instantiate(_food[foodNumber], spawnPosition, Quaternion.identity);
@@ -52,39 +54,39 @@ public class SurroundingsGeneration : MonoBehaviour
                     if (_obstacles[obstacleNumber].name.StartsWith("coral"))
                     {
                         spawnPosition = new Vector3(
-                            _player.transform.position.x + UnityEngine.Random.Range(17, 22),
+                            _player.Position.x + UnityEngine.Random.Range(17, 22),
                             UnityEngine.Random.Range(-3, -5), 0);
                     }
                     else
                     {
-                        spawnPosition = new Vector3(_player.transform.position.x + UnityEngine.Random.Range(17, 22),
-                            UnityEngine.Random.Range(-2, 3) * 2, _player.transform.position.z);
+                        spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
+                            UnityEngine.Random.Range(-2, 3) * 2, _player.Position.z);
                     }
                     Instantiate(_obstacles[obstacleNumber], spawnPosition, Quaternion.identity);
                     break;
                 }
             case 1:
                 {
-                    spawnPosition = new Vector3(_player.transform.position.x + UnityEngine.Random.Range(17, 22),
+                    spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                         -2, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
 
-                    spawnPosition = new Vector3(_player.transform.position.x + UnityEngine.Random.Range(17, 22),
+                    spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                         2, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
                     break;
                 }
             case 2:
                 {
-                    spawnPosition = new Vector3(_player.transform.position.x + UnityEngine.Random.Range(17, 22),
+                    spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                         -4, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
 
-                    spawnPosition = new Vector3(_player.transform.position.x + UnityEngine.Random.Range(17, 22),
+                    spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                         0, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
 
-                    spawnPosition = new Vector3(_player.transform.position.x + UnityEngine.Random.Range(17, 22),
+                    spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                         4, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
                     break;
@@ -92,21 +94,21 @@ public class SurroundingsGeneration : MonoBehaviour
             case 3:
                 {
                     int minus = UnityEngine.Random.Range(0, 2) == 1 ? 1 : -1;
-                    spawnPosition = new Vector3(_player.transform.position.x + 17f,
+                    spawnPosition = new Vector3(_player.Position.x + 17f,
                         -4 * minus, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
-                    spawnPosition = new Vector3(_player.transform.position.x + 18.5f,
+                    spawnPosition = new Vector3(_player.Position.x + 18.5f,
                         -2 * minus, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
-                    spawnPosition = new Vector3(_player.transform.position.x + 20f,
+                    spawnPosition = new Vector3(_player.Position.x + 20f,
                         0, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
-                    spawnPosition = new Vector3(_player.transform.position.x + 21.5f,
+                    spawnPosition = new Vector3(_player.Position.x + 21.5f,
                         2 * minus, 0);
                     Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
                     break;
                 }
          }
-                _spawnTime = DateTime.Now;
+        _spawnTime = DateTime.Now;
     }
 }
