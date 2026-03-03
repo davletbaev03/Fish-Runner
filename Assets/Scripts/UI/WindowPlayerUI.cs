@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public class WindowPlayerUI : MonoBehaviour
 {
     [SerializeField] private Button _buttonPause = null;
-    [SerializeField] private WindowPause _windowPause = null;
 
     [SerializeField] private TextMeshProUGUI _foodText = null;
 
@@ -27,6 +26,12 @@ public class WindowPlayerUI : MonoBehaviour
     {
         _player = ServiceLocator.Get<IPlayerService>();
         EventBus.OnRunStarted += ProgressBarShow;
+        EventBus.OnRunEnded += Deactivation;
+
+        EventBus.OnRunPaused += () =>
+        {
+            this.gameObject.SetActive(false);
+        };
 
         EventBus.OnHealthChanged += UpdateHealth;
         EventBus.OnPointsChanged += UpdateScore;
@@ -56,8 +61,8 @@ public class WindowPlayerUI : MonoBehaviour
 
     private void ProgressBarShow()
     {
-        if (_recordsManager._scoreData.playerData.distance != 0)
-            _personalBest = _recordsManager._scoreData.playerData.distance;
+        if (_recordsManager.scoreData.playerData.distance != 0)
+            _personalBest = _recordsManager.scoreData.playerData.distance;
         else
             _recordUI.gameObject.SetActive(false);
     }
@@ -69,18 +74,23 @@ public class WindowPlayerUI : MonoBehaviour
 
     private void ShowWindowPause()
     {
+        EventBus.OnRunPaused?.Invoke();
+
         Time.timeScale = 0f;
         EventBus.ChangeSkeletonAnim("Swim_Normal", "Idle");
-        _windowPause.gameObject.SetActive(true);
+        
         this.gameObject.SetActive(false);
+    }
 
-        _windowPause._darkOverlay.blocksRaycasts = true;
-        _windowPause._darkOverlay.DOFade(0.6f, 0.25f).SetUpdate(true);
+    private void Deactivation(int a, int b)
+    {
+        this.gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
         EventBus.OnRunStarted -= ProgressBarShow;
+        EventBus.OnRunEnded -= Deactivation;
         EventBus.OnHealthChanged -= UpdateHealth;
         EventBus.OnPointsChanged -= UpdateScore;
     }

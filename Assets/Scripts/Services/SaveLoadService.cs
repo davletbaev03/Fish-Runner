@@ -5,16 +5,25 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public static class SaveLoadService
+public interface ISaveLoadService
 {
-    public static void Save<T>(T data, string fileName)
+    public void Save<T>(T data, string fileName);
+    public bool TryLoad<T>(string fileName, out T data) where T : class;
+    public T LoadOrCreate<T>(string fileName) where T : class, new();
+
+    public void Delete(string fileName);
+}
+
+public class SaveLoadService : ISaveLoadService
+{
+    public void Save<T>(T data, string fileName)
     {
         string path = GetPath(fileName);
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(path, json);
     }
 
-    public static bool TryLoad<T>(string fileName, out T data) where T : class
+    public bool TryLoad<T>(string fileName, out T data) where T : class
     {
         string path = GetPath(fileName);
         data = null;
@@ -43,7 +52,7 @@ public static class SaveLoadService
         }
     }
 
-    public static T LoadOrCreate<T>(string fileName) where T : class, new()
+    public T LoadOrCreate<T>(string fileName) where T : class, new()
     {
         if (TryLoad(fileName, out T data))
             return data;
@@ -54,7 +63,7 @@ public static class SaveLoadService
         return newData;
     }
 
-    public static void Delete(string fileName)
+    public void Delete(string fileName)
     {
         string path = GetPath(fileName);
 
@@ -62,7 +71,7 @@ public static class SaveLoadService
             File.Delete(path);
     }
 
-    private static string GetPath(string fileName)
+    private string GetPath(string fileName)
     {
         return Path.Combine(Application.persistentDataPath, fileName);
     }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
 public class WindowResults : MonoBehaviour
@@ -16,12 +17,18 @@ public class WindowResults : MonoBehaviour
     [SerializeField] public TextMeshProUGUI _scoreText = null;
     [SerializeField] public TextMeshProUGUI _newRecordText = null;
 
+    [SerializeField] private RecordsManager _recordsManager = null;
+
     private Tween _pulseTween;
 
     void Start()
     {
+        EventBus.OnRunEnded += ShowWindowResults;
+
         _buttonRestart.onClick.AddListener(RestartGame);
         _buttonMainMenu.onClick.AddListener(GoToMainMenu);
+
+        this.gameObject.SetActive(false);
     }
     private void OnEnable()
     {
@@ -42,8 +49,30 @@ public class WindowResults : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
+    private void ShowWindowResults(int food, int distance)  
+    {
+        this.gameObject.SetActive(true);
+        distance = Mathf.FloorToInt(distance);
+
+        _foodText.text = "Food: " + food;
+        _distanceText.text = "Distance: " + distance;
+        _scoreText.text = "Total Score: " + (food * 10 + distance);
+
+        _recordsManager.AddScore(_recordsManager.scoreData.playerData.name, (food * 10 + distance), distance);
+
+        _newRecordText.gameObject.SetActive(
+            _recordsManager.TrySetNewPersonalRecord(_recordsManager.scoreData.playerData.name
+            , (food * 10 + distance), distance));
+    }
+   
+
     private void OnDisable()
     {
         _pulseTween?.Kill();
+    }
+
+    private void OnDestroy()
+    {
+        EventBus.OnRunEnded -= ShowWindowResults;
     }
 }

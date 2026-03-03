@@ -31,19 +31,22 @@ public class ScoreData
 public class RecordsManager : MonoBehaviour
 {
     private string _filePath;
-    public ScoreData _scoreData;
+    public ScoreData scoreData;
 
     private string FILE_NAME = "scores.json";
     private const int MAX_SCORES = 5;
 
+    private ISaveLoadService _saveLoadService;
     public List<ScoreEntry> GetScores
     {
-        get { return _scoreData.scores; }
-        set { _scoreData.scores = value; }
+        get { return scoreData.scores; }
+        set { scoreData.scores = value; }
     }
 
     private void Start()
     {
+        _saveLoadService = ServiceLocator.Get<ISaveLoadService>();
+
         _filePath = Path.Combine(Application.persistentDataPath, "scores.json");
         //Clear();
         Load();
@@ -55,11 +58,11 @@ public class RecordsManager : MonoBehaviour
 
     private void InitPlayer()
     {
-        if (string.IsNullOrEmpty(_scoreData.playerData.name))
+        if (string.IsNullOrEmpty(scoreData.playerData.name))
         {
-            _scoreData.playerData.name = GeneratePlayerName();
-            _scoreData.playerData.score = 0;
-            _scoreData.playerData.distance = 0;
+            scoreData.playerData.name = GeneratePlayerName();
+            scoreData.playerData.score = 0;
+            scoreData.playerData.distance = 0;
             Save();
         }
     }
@@ -76,7 +79,7 @@ public class RecordsManager : MonoBehaviour
             index++;
             currentName = $"{resultName}_{index}";
         } 
-        while (_scoreData.scores.Any(s => s.name == currentName));
+        while (scoreData.scores.Any(s => s.name == currentName));
 
         resultName = currentName;
         return resultName;
@@ -84,10 +87,10 @@ public class RecordsManager : MonoBehaviour
 
     public bool TrySetNewPersonalRecord(string name, int score, float distance)
     {
-        if (_scoreData.playerData == null || score > _scoreData.playerData.score)
+        if (scoreData.playerData == null || score > scoreData.playerData.score)
         {
-            _scoreData.playerData.score = score;
-            _scoreData.playerData.distance = distance;
+            scoreData.playerData.score = score;
+            scoreData.playerData.distance = distance;
             Save();
             return true;
         }
@@ -97,7 +100,7 @@ public class RecordsManager : MonoBehaviour
 
     public void AddScore(string name, int score, float distance)
     {
-        ScoreEntry existing = _scoreData.scores
+        ScoreEntry existing = scoreData.scores
             .FirstOrDefault(s => s.name == name);
 
         if (existing != null)
@@ -110,10 +113,10 @@ public class RecordsManager : MonoBehaviour
         }
         else
         {
-            _scoreData.scores.Add(new ScoreEntry(name, score, distance));
+            scoreData.scores.Add(new ScoreEntry(name, score, distance));
         }
 
-        _scoreData.scores = _scoreData.scores
+        scoreData.scores = scoreData.scores
             .OrderByDescending(s => s.score)
             .Take(MAX_SCORES)
             .ToList();
@@ -123,21 +126,21 @@ public class RecordsManager : MonoBehaviour
 
     private void Save()
     {
-        SaveLoadService.Save(_scoreData, FILE_NAME);
+        _saveLoadService.Save(scoreData, FILE_NAME);
     }
 
     private void Load()
     {
-        if (!SaveLoadService.TryLoad(FILE_NAME, out _scoreData))
+        if (!_saveLoadService.TryLoad(FILE_NAME, out scoreData))
         {
-            _scoreData = new ScoreData();
+            scoreData = new ScoreData();
             Save();
         }
     }
 
     public void Clear()
     {
-        _scoreData = new ScoreData();
+        scoreData = new ScoreData();
         Save();
     }
 }

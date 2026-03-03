@@ -6,17 +6,18 @@ using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-    [SerializeField] private PlayerControl _player;
+    private IPlayerService _player;
     [SerializeField] private AudioSource _source;
     void Start()
     {
+        _player = ServiceLocator.Get<IPlayerService>();
         if(_player == null)
-            this.transform.position = new Vector3(_player.transform.position.x + 5, transform.position.y, transform.position.z);
+            this.transform.position = new Vector3(_player.Position.x + 5, transform.position.y, transform.position.z);
         EventBus.OnRunEnded += StopMusic;
     }
     void Update()
     {
-        this.transform.position = new Vector3(_player.transform.position.x + 5, transform.position.y, transform.position.z);
+        this.transform.position = new Vector3(_player.Position.x + 5, transform.position.y, transform.position.z);
     }
 
     private void StopMusic(int a, int b)

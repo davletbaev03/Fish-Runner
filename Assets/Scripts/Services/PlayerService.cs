@@ -18,6 +18,7 @@ public class PlayerService : IPlayerService
     {
         _player = player;
     }
+
     public Vector3 Position => _player.Position;
     public float Speed => _player.Speed;
 

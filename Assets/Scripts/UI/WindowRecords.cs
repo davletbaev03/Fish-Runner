@@ -15,7 +15,7 @@ public class WindowRecords : MonoBehaviour
     {
         _exitButton.onClick.AddListener(CloseLeaderboard);
 
-        SetLeaderboard(_recordsManager._scoreData.scores);
+        SetLeaderboard(_recordsManager.scoreData.scores);
     }
 
     private void SetLeaderboard(List<ScoreEntry> records)

@@ -24,7 +24,7 @@ public class PlayerControl : MonoBehaviour
     private int _food;
     private int _healthPoints;
 
-    [SerializeField] private PlayerAudio _playerAudio = null;
+    private IPlayerAudioService _playerAudio = null;
 
     [SerializeField] public SkeletonAnimation Skeleton;
 
@@ -50,6 +50,8 @@ public class PlayerControl : MonoBehaviour
 
     private void Start()
     {
+        _playerAudio = ServiceLocator.Get<IPlayerAudioService>();
+        
         EventBus.ChangeSkeletonAnim += PlayAnimation;
 
         _speed = _playerParams.speed;
@@ -117,7 +119,7 @@ public class PlayerControl : MonoBehaviour
 
         if (!_isMovingSide && swipeDistY > 0 && transform.position.y < 3)
         {
-            _playerAudio.Play(_playerAudio.moveSideClip);
+            _playerAudio.Play(_playerAudio.MoveSideClip);
 
             _isMovingSide = true;
             transform.DOMoveY(transform.position.y + 2f, 0.2f).SetEase(Ease.OutQuad)
@@ -125,7 +127,7 @@ public class PlayerControl : MonoBehaviour
         }
         else if (!_isMovingSide && swipeDistY < 0 && transform.position.y > -3)
         {
-            _playerAudio.Play(_playerAudio.moveSideClip);
+            _playerAudio.Play(_playerAudio.MoveSideClip);
 
             _isMovingSide = true;
             transform.DOMoveY(transform.position.y - 2f, 0.2f).SetEase(Ease.OutQuad)
@@ -178,7 +180,7 @@ public class PlayerControl : MonoBehaviour
         {
             PlayAnimation("Death", "Death_Idle");
 
-            _playerAudio.Play(_playerAudio.deathClip);
+            _playerAudio.Play(_playerAudio.DeathClip);
             _speed = 0f;
 
             IsGameEnd = true;
