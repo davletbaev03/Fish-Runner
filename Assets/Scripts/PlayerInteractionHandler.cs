@@ -1,16 +1,24 @@
+using FishRunner.Configs;
+using FishRunner.Player;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerInteractionHandler : MonoBehaviour
+namespace FishRunner.Player
 {
-    [SerializeField] public PlayerInteractionConfig config;
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    public class PlayerInteractionHandler : MonoBehaviour
     {
-        if (!collision.TryGetComponent<PlayerControl>(out var player))
-            return;
+        [SerializeField] public PlayerInteractionConfig config;
 
-        player.ApplyInteraction(config, gameObject);
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (!collision.TryGetComponent<PlayerControl>(out var player))
+                return;
+
+            player.ApplyInteraction(config);
+
+            if (config.destroySource)
+                Destroy(this.gameObject);
+        }
     }
 }

@@ -5,71 +5,79 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
+using FishRunner.Systems;
 
-public class WindowPause : MonoBehaviour
+namespace FishRunner.UI
 {
-    [SerializeField] private Button _buttonUnPause = null;
-    [SerializeField] private Button _buttonMainMenu = null;
-
-    [SerializeField] public CanvasGroup _darkOverlay = null;
-    [SerializeField] private TextMeshProUGUI _timerText = null;
-
-    void Start()
+    public class WindowPause : MonoBehaviour
     {
-        _buttonUnPause.onClick.AddListener(CloseWindowPause);
-        _buttonMainMenu.onClick.AddListener(GoToMainMenu);
+        [SerializeField] private Button _buttonUnPause = null;
+        [SerializeField] private Button _buttonMainMenu = null;
 
-        EventBus.OnRunPaused += ShowWindowPause;
+        public CanvasGroup DarkOverlay = null;
+        public TextMeshProUGUI TimerText = null;
 
-        this.gameObject.SetActive(false);
-    }
+        void Start()
+        {
+            _buttonUnPause.onClick.AddListener(CloseWindowPause);
+            _buttonMainMenu.onClick.AddListener(GoToMainMenu);
 
-    private void CloseWindowPause()
-    {
-        _timerText.gameObject.SetActive(true);
+            Systems.EventBus.OnRunPaused += ShowWindowPause;
 
-        _darkOverlay.blocksRaycasts = false;
+            this.gameObject.SetActive(false);
+        }
 
-        StartReadyTimer();
+        private void CloseWindowPause()
+        {
+            TimerText.gameObject.SetActive(true);
 
-        _darkOverlay.DOFade(0f, 0.25f);
-        this.gameObject.SetActive(false);
-    }
+            DarkOverlay.blocksRaycasts = false;
+            DarkOverlay.DOFade(0f, 0.25f);
 
-    private void ShowWindowPause()
-    {
-        this.gameObject.SetActive(true);
-        _darkOverlay.blocksRaycasts = true;
-        _darkOverlay.DOFade(0.6f, 0.25f).SetUpdate(true);
-    }
+            StartReadyTimer();
+            
+            this.gameObject.SetActive(false);
 
-    private void StartReadyTimer()
-    {
-        float timerValue = 3f;
+            
+        }
 
-        DOTween.To(() => timerValue, x => timerValue = x, 0f, 3f)
-                .SetEase(Ease.Linear)
-               .SetUpdate(true)
-               .OnUpdate(() =>
-               {
-                   _timerText.text = Mathf.Floor(timerValue + 1).ToString();
-               })
-               .OnComplete(() =>
-               {
-                   _timerText.text = "Go!";
+        private void ShowWindowPause()
+        {
+            this.gameObject.SetActive(true);
+            DarkOverlay.blocksRaycasts = true;
+            DarkOverlay.DOFade(0.6f, 0.25f).SetUpdate(true);
+        }
 
-                   _timerText.gameObject.SetActive(false);
-                   Time.timeScale = 1f;
-               });
-    }
+        private void StartReadyTimer()
+        {
+            float timerValue = 3f;
 
-    private void GoToMainMenu()
-    {
-        SceneManager.LoadScene("MainMenu");
-    }
+            DOTween.To(() => timerValue, x => timerValue = x, 0f, 3f)
+                    .SetEase(Ease.Linear)
+                   .SetUpdate(true)
+                   .OnUpdate(() =>
+                   {
+                       TimerText.text = Mathf.Floor(timerValue + 1).ToString();
+                   })
+                   .OnComplete(() =>
+                   {
+                       TimerText.text = "Go!";
 
-    private void OnDestroy()
-    {
-        EventBus.OnRunPaused -= ShowWindowPause;
+                       TimerText.gameObject.SetActive(false);
+                       Time.timeScale = 1f;
+
+                       Systems.EventBus.OnRunUnpaused?.Invoke();
+                   });
+        }
+
+        private void GoToMainMenu()
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+
+        private void OnDestroy()
+        {
+            Systems.EventBus.OnRunPaused -= ShowWindowPause;
+        }
     }
 }

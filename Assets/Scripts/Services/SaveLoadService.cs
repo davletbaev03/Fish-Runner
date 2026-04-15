@@ -5,74 +5,68 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public interface ISaveLoadService
+namespace FishRunner.Services
 {
-    public void Save<T>(T data, string fileName);
-    public bool TryLoad<T>(string fileName, out T data) where T : class;
-    public T LoadOrCreate<T>(string fileName) where T : class, new();
-
-    public void Delete(string fileName);
-}
-
-public class SaveLoadService : ISaveLoadService
-{
-    public void Save<T>(T data, string fileName)
+    public class SaveLoadService : ISaveLoadService
     {
-        string path = GetPath(fileName);
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(path, json);
-    }
-
-    public bool TryLoad<T>(string fileName, out T data) where T : class
-    {
-        string path = GetPath(fileName);
-        data = null;
-
-        if (!File.Exists(path))
-            return false;
-
-        try
+        public void Save<T>(T data, string fileName) where T : class
         {
-            string json = File.ReadAllText(path);
+            string path = GetPath(fileName);
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(path, json);
+        }
 
-            if (string.IsNullOrEmpty(json))
+        public bool TryLoad<T>(string fileName, out T data) where T : class
+        {
+            string path = GetPath(fileName);
+            data = null;
+
+            if (!File.Exists(path))
                 return false;
 
-            data = JsonUtility.FromJson<T>(json);
+            try
+            {
+                string json = File.ReadAllText(path);
 
-            if (data == null)
+                if (string.IsNullOrEmpty(json))
+                    return false;
+
+                data = JsonUtility.FromJson<T>(json);
+
+                if (data == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SaveLoad] File corrupted: {fileName}\n{e.Message}");
                 return false;
-
-            return true;
+            }
         }
-        catch (Exception e)
+
+        public T LoadOrCreate<T>(string fileName) where T : class, new()
         {
-            Debug.LogWarning($"[SaveLoad] File corrupted: {fileName}\n{e.Message}");
-            return false;
+            if (TryLoad(fileName, out T data))
+                return data;
+
+            // fallback
+            T newData = new T();
+            Save(newData, fileName);
+            return newData;
         }
-    }
 
-    public T LoadOrCreate<T>(string fileName) where T : class, new()
-    {
-        if (TryLoad(fileName, out T data))
-            return data;
+        public void Delete(string fileName)
+        {
+            string path = GetPath(fileName);
 
-        // fallback
-        T newData = new T();
-        Save(newData, fileName);
-        return newData;
-    }
+            if (File.Exists(path))
+                File.Delete(path);
+        }
 
-    public void Delete(string fileName)
-    {
-        string path = GetPath(fileName);
-
-        if (File.Exists(path))
-            File.Delete(path);
-    }
-
-    private string GetPath(string fileName)
-    {
-        return Path.Combine(Application.persistentDataPath, fileName);
+        private string GetPath(string fileName)
+        {
+            return Path.Combine(Application.persistentDataPath, fileName);
+        }
     }
 }

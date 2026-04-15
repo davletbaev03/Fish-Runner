@@ -1,4 +1,6 @@
 using DG.Tweening;
+using FishRunner.Services;
+using FishRunner.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,72 +9,77 @@ using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
-public class WindowResults : MonoBehaviour
+namespace FishRunner.UI
 {
-    [SerializeField] private Button _buttonRestart = null;
-    [SerializeField] private Button _buttonMainMenu = null;
-
-    [SerializeField] public TextMeshProUGUI _foodText = null;
-    [SerializeField] public TextMeshProUGUI _distanceText = null;
-    [SerializeField] public TextMeshProUGUI _scoreText = null;
-    [SerializeField] public TextMeshProUGUI _newRecordText = null;
-
-    [SerializeField] private RecordsManager _recordsManager = null;
-
-    private Tween _pulseTween;
-
-    void Start()
+    public class WindowResults : MonoBehaviour
     {
-        EventBus.OnRunEnded += ShowWindowResults;
+        [SerializeField] private Button _buttonRestart = null;
+        [SerializeField] private Button _buttonMainMenu = null;
 
-        _buttonRestart.onClick.AddListener(RestartGame);
-        _buttonMainMenu.onClick.AddListener(GoToMainMenu);
+        [SerializeField] public TextMeshProUGUI _foodText = null;
+        [SerializeField] public TextMeshProUGUI _distanceText = null;
+        [SerializeField] public TextMeshProUGUI _scoreText = null;
+        [SerializeField] public TextMeshProUGUI _newRecordText = null;
 
-        this.gameObject.SetActive(false);
-    }
-    private void OnEnable()
-    {
-        _pulseTween = _newRecordText.transform
-            .DOScale(1.1f, 0.4f)
-            .SetLoops(-1, LoopType.Yoyo)
-            .SetEase(Ease.InOutSine)
-            .SetUpdate(true);
-    }
+        private IRecordsManager _recordsManager = null;
 
-    private void RestartGame()
-    {
-        SceneManager.LoadScene("Game");
-    }
+        private Tween _pulseTween;
 
-    private void GoToMainMenu()
-    {
-        SceneManager.LoadScene("MainMenu");
-    }
+        void Start()
+        {
+            _recordsManager = ServiceLocator.Get<IRecordsManager>();
 
-    private void ShowWindowResults(int food, int distance)  
-    {
-        this.gameObject.SetActive(true);
-        distance = Mathf.FloorToInt(distance);
+            Systems.EventBus.OnRunEnded += ShowWindowResults;
 
-        _foodText.text = "Food: " + food;
-        _distanceText.text = "Distance: " + distance;
-        _scoreText.text = "Total Score: " + (food * 10 + distance);
+            _buttonRestart.onClick.AddListener(RestartGame);
+            _buttonMainMenu.onClick.AddListener(GoToMainMenu);
 
-        _recordsManager.AddScore(_recordsManager.scoreData.playerData.name, (food * 10 + distance), distance);
+            this.gameObject.SetActive(false);
+        }
+        private void OnEnable()
+        {
+            _pulseTween = _newRecordText.transform
+                .DOScale(1.1f, 0.4f)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetEase(Ease.InOutSine)
+                .SetUpdate(true);
+        }
 
-        _newRecordText.gameObject.SetActive(
-            _recordsManager.TrySetNewPersonalRecord(_recordsManager.scoreData.playerData.name
-            , (food * 10 + distance), distance));
-    }
-   
+        private void RestartGame()
+        {
+            SceneManager.LoadScene("Game");
+        }
 
-    private void OnDisable()
-    {
-        _pulseTween?.Kill();
-    }
+        private void GoToMainMenu()
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
 
-    private void OnDestroy()
-    {
-        EventBus.OnRunEnded -= ShowWindowResults;
+        private void ShowWindowResults(int food, int distance)
+        {
+            this.gameObject.SetActive(true);
+            distance = Mathf.FloorToInt(distance);
+
+            _foodText.text = "Food: " + food;
+            _distanceText.text = "Distance: " + distance;
+            _scoreText.text = "Total Score: " + (food * 10 + distance);
+
+            _recordsManager.AddScore(_recordsManager.ScoreData.playerData.name, (food * 10 + distance), distance);
+
+            _newRecordText.gameObject.SetActive(
+                _recordsManager.TrySetNewPersonalRecord(_recordsManager.ScoreData.playerData.name
+                , (food * 10 + distance), distance));
+        }
+
+
+        private void OnDisable()
+        {
+            _pulseTween?.Kill();
+        }
+
+        private void OnDestroy()
+        {
+            Systems.EventBus.OnRunEnded -= ShowWindowResults;
+        }
     }
 }

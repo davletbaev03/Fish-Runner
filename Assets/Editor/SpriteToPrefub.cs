@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
+using FishRunner.Player;
+using FishRunner.Configs;
 
 public class SpriteToPrefab : MonoBehaviour
 {

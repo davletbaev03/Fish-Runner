@@ -1,20 +1,25 @@
+using FishRunner.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using FishRunner.Services;
 
-public class RecordItemUI : MonoBehaviour
+namespace FishRunner.UI
 {
-    [SerializeField] private TextMeshProUGUI placeText;
-    [SerializeField] private TextMeshProUGUI nameText;
-    [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private TextMeshProUGUI distanceText;
-
-    public void Setup(int place, ScoreEntry data)
+    public class RecordItemUI : MonoBehaviour
     {
-        placeText.text = place.ToString();
-        nameText.text = data.name.ToString();
-        scoreText.text = data.score.ToString();
-        distanceText.text = $"{data.distance:F1}";
+        [SerializeField] private TextMeshProUGUI placeText;
+        [SerializeField] private TextMeshProUGUI nameText;
+        [SerializeField] private TextMeshProUGUI scoreText;
+        [SerializeField] private TextMeshProUGUI distanceText;
+
+        public void Setup(int place, ScoreEntry data)
+        {
+            placeText.text = place.ToString();
+            nameText.text = data.name.ToString();
+            scoreText.text = data.score.ToString();
+            distanceText.text = $"{data.distance:F1}";
+        }
     }
 }

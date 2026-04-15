@@ -2,36 +2,43 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class ServiceLocator
+namespace FishRunner.Services
 {
-    private static Dictionary<Type, object> _services = new();
-
-    public static void Register<T>(T service)
+    public static class ServiceLocator
     {
-        var type = typeof(T);
+        private static Dictionary<Type, object> _services = new();
 
-        if (_services.ContainsKey(type))
+        public static Dictionary<Type, object> Services
         {
-            Debug.LogError($"Service {type.Name} already registered");
+            get { return _services; }
+        }
+        public static void Register<T>(T service)
+        {
+            var type = typeof(T);
+
+            if (_services.ContainsKey(type))
+            {
+                Debug.LogError($"Service {type.Name} already registered");
+            }
+
+            _services[type] = service;
         }
 
-        _services[type] = service;
-    }
-
-    public static T Get<T>()
-    {
-        var type = typeof(T);
-
-        if (_services.TryGetValue(type, out var service))
+        public static T Get<T>()
         {
-            return (T)service;
+            var type = typeof(T);
+
+            if (_services.TryGetValue(type, out var service))
+            {
+                return (T)service;
+            }
+
+            throw new Exception($"Service {type.Name} not found");
         }
 
-        throw new Exception($"Service {type.Name} not found");
-    }
-
-    public static void Clear()
-    {
-        _services.Clear();
+        public static void Clear()
+        {
+            _services.Clear();
+        }
     }
 }

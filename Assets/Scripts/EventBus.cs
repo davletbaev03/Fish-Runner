@@ -4,18 +4,22 @@ using System.Collections.Generic;
 using UnityEditor.PackageManager;
 using UnityEngine;
 
-public static class EventBus
+namespace FishRunner.Systems
 {
-    //Session
-    public static Action OnSessionStarted;
+    public static class EventBus
+    {
+        //Session
+        public static Action OnSessionStarted;
 
-    //GameStates
-    public static Action OnRunStarted;
-    public static Action OnRunPaused;
-    public static Action<int,int> OnRunEnded;
+        //GameStates
+        public static Action OnRunStarted;
+        public static Action OnRunPaused;
+        public static Action OnRunUnpaused;
+        public static Action<int, int> OnRunEnded;
 
-    //PlayerStates
-    public static Action<int, bool> OnHealthChanged;
-    public static Action<int> OnPointsChanged;
-    public static Action<string, string> ChangeSkeletonAnim;
+        //PlayerStates
+        public static Action<int, bool> OnHealthChanged;
+        public static Action<int> OnPointsChanged;
+        public static Action<string, string> ChangeSkeletonAnim;
+    }
 }

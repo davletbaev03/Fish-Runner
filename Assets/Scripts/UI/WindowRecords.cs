@@ -3,34 +3,43 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using FishRunner.Services;
 
-public class WindowRecords : MonoBehaviour
+namespace FishRunner.UI
 {
-    [SerializeField] private Button _exitButton = null;
-
-    [SerializeField] public RecordsManager _recordsManager = null;
-    [SerializeField] private Transform _content;
-    [SerializeField] private RecordItemUI _itemPrefab;
-    void Start()
+    public class WindowRecords : MonoBehaviour
     {
-        _exitButton.onClick.AddListener(CloseLeaderboard);
+        [SerializeField] private Button _exitButton = null;
 
-        SetLeaderboard(_recordsManager.scoreData.scores);
-    }
+        public IRecordsManager _recordsManager = null;
 
-    private void SetLeaderboard(List<ScoreEntry> records)
-    {
-        foreach (Transform child in _content)
-            Destroy(child.gameObject);
+        [SerializeField] private Transform _content;
+        [SerializeField] private RecordItemUI _itemPrefab;
 
-        for (int i = 0; i < records.Count; i++)
+        void Start()
         {
-            var item = Instantiate(_itemPrefab, _content);
-            item.Setup(i + 1, records[i]);
+            _exitButton.onClick.AddListener(CloseLeaderboard);
+
+            _recordsManager = ServiceLocator.Get<IRecordsManager>();
+            SetLeaderboard(_recordsManager.ScoreData.scores);
+
+            this.gameObject.SetActive(false);
         }
-    }
-    private void CloseLeaderboard()
-    {
-        this.gameObject.SetActive(false);
+
+        private void SetLeaderboard(List<ScoreEntry> records)
+        {
+            foreach (Transform child in _content)
+                Destroy(child.gameObject);
+
+            for (int i = 0; i < records.Count; i++)
+            {
+                var item = Instantiate(_itemPrefab, _content);
+                item.Setup(i + 1, records[i]);
+            }
+        }
+        private void CloseLeaderboard()
+        {
+            this.gameObject.SetActive(false);
+        }
     }
 }

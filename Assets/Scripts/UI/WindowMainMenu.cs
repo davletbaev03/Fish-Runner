@@ -6,63 +6,72 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using FishRunner.Services;
 using static UnityEditor.Experimental.GraphView.GraphView;
 
-public class WindowMainMenu : MonoBehaviour
+namespace FishRunner.UI
 {
-    [SerializeField] private Button _startButton = null;
-    [SerializeField] private Button _recordsButton = null;
-    [SerializeField] private Button _settingsButton = null;
-
-    [SerializeField] private WindowRecords _windowRecords;
-    [SerializeField] private WindowSettings _windowSettings;
-
-    private IAnalyticService _analyticService;
-
-    private void Awake()
+    public class WindowMainMenu : MonoBehaviour
     {
-        _startButton.onClick.AddListener(GameLaunch);
-        _recordsButton.onClick.AddListener(ShowRecords);
-        _settingsButton.onClick.AddListener(ShowSettings);
+        [SerializeField] private Button _startButton = null;
+        [SerializeField] private Button _recordsButton = null;
+        [SerializeField] private Button _settingsButton = null;
 
-        _analyticService = ServiceLocator.Get<IAnalyticService>();
+        [SerializeField] private WindowRecords _windowRecords;
+        [SerializeField] private WindowSettings _windowSettings;
 
-        EventBus.OnSessionStarted += AnalyticAppStart;
-        Debug.LogError("Event sub");
-    }
+        private IAnalyticService _analyticService;
 
-    private void AnalyticAppStart()
-    {
-        _analyticService.StartSession();
+        private void Awake()
+        {
+            _startButton.onClick.AddListener(GameLaunch);
+            _recordsButton.onClick.AddListener(ShowRecords);
+            _settingsButton.onClick.AddListener(ShowSettings);
 
-        _analyticService.LogEvent(
-            "app_start",
-            new Dictionary<string, object>
-            {
+            _analyticService = ServiceLocator.Get<IAnalyticService>();
+
+            //Systems.EventBus.OnSessionStarted += AnalyticAppStart;
+            //Debug.LogError("Event sub");
+        }
+        private void Start()
+        {
+            //Systems.EventBus.OnSessionStarted?.Invoke();
+            AnalyticAppStart();
+        }
+
+        private void AnalyticAppStart()
+        {
+            _analyticService.StartSession();
+
+            _analyticService.LogEvent(
+                "app_start",
+                new Dictionary<string, object>
+                {
             { "session_id", _analyticService.SessionId },
-            { "best_distance", Mathf.FloorToInt(_windowRecords._recordsManager.scoreData.playerData.distance) },
-            { "best_food", (_windowRecords._recordsManager.scoreData.playerData.score -
-            Mathf.FloorToInt(_windowRecords._recordsManager.scoreData.playerData.distance)) / 10}
-            }
-        );
-    }
+            { "best_distance", Mathf.FloorToInt(_windowRecords._recordsManager.ScoreData.playerData.distance) },
+            { "best_food", (_windowRecords._recordsManager.ScoreData.playerData.score -
+            Mathf.FloorToInt(_windowRecords._recordsManager.ScoreData.playerData.distance)) / 10}
+                }
+            );
+        }
 
-    private void GameLaunch()
-    {
-        SceneManager.LoadScene("Game");
-    }
+        private void GameLaunch()
+        {
+            SceneManager.LoadScene("Game");
+        }
 
-    private void ShowRecords()
-    {
-        _windowRecords.gameObject.SetActive(true);
-    }
-    private void ShowSettings()
-    {
-        _windowSettings.gameObject.SetActive(true);
-    }
+        private void ShowRecords()
+        {
+            _windowRecords.gameObject.SetActive(true);
+        }
+        private void ShowSettings()
+        {
+            _windowSettings.gameObject.SetActive(true);
+        }
 
-    private void OnDestroy()
-    {
-        EventBus.OnSessionStarted -= AnalyticAppStart;
+        private void OnDestroy()
+        {
+            Systems.EventBus.OnSessionStarted -= AnalyticAppStart;
+        }
     }
 }

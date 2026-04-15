@@ -1,4 +1,7 @@
 using DG.Tweening;
+using FishRunner.Configs;
+using FishRunner.Services;
+using FishRunner.Systems;
 using Spine.Unity;
 using System;
 using System.Collections;
@@ -6,235 +9,231 @@ using System.Collections.Generic;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
-
-public class PlayerControl : MonoBehaviour
+namespace FishRunner.Player
 {
-    private Vector2 _startPos;
-    private Vector2 _endPos;
-    
-    private float _minSwipeDist = 1f;
-    private bool _isMovingSide = false;
-    public bool IsGameEnd = false;
-
-    private DateTime _startIFramesTime = DateTime.Now;
-    private Tween _flashSequence;
-
-    [SerializeField] private PlayerParams _playerParams;
-    private float _speed;
-    private int _food;
-    private int _healthPoints;
-
-    private IPlayerAudioService _playerAudio = null;
-
-    [SerializeField] public SkeletonAnimation Skeleton;
-
-    public Vector3 Position
+    public class PlayerControl : MonoBehaviour
     {
-        get { return transform.position; }
-    }
+        private Vector2 _startPos;
+        private Vector2 _endPos;
 
-    public float Speed
-    {
-        get { return _speed; }
-    }
+        private float _minSwipeDist = 1f;
+        private bool _isMovingSide = false;
+        public bool IsGameEnd = false;
 
-    public int HealthPoints
-    {
-        get { return _healthPoints; }
-    }
+        private DateTime _startIFramesTime = DateTime.Now;
+        private Tween _flashSequence;
 
-    public int Food
-    {
-        get { return _food; }   
-    }
+        [SerializeField] private PlayerParams _playerParams;
+        private float _speed;
+        private int _food;
+        private int _healthPoints;
 
-    private void Start()
-    {
-        _playerAudio = ServiceLocator.Get<IPlayerAudioService>();
-        
-        EventBus.ChangeSkeletonAnim += PlayAnimation;
+        private IPlayerAudioService _playerAudio = null;
 
-        _speed = _playerParams.speed;
-        _food = _playerParams.points;
-        _healthPoints = _playerParams.healthPoints;
+        [SerializeField] public SkeletonAnimation Skeleton;
 
-        AccelerateByTime();
-        Skeleton.AnimationState.SetAnimation(0, "Swim_Normal", true);
-    }
-
-    void Update()
-    {
-
-        if (IsGameEnd)
-            return;
-
-        this.transform.Translate(Vector2.left * _speed * Time.deltaTime);
-        
-        if (Input.touchCount > 0)
+        public Vector3 Position
         {
-            Touch touch = Input.GetTouch(0);
+            get { return transform.position; }
+        }
 
-            if (touch.phase == TouchPhase.Began)
-                _startPos = touch.position;
+        public float Speed
+        {
+            get { return _speed; }
+        }
 
-            else if (touch.phase == TouchPhase.Ended)
+        public int HealthPoints
+        {
+            get { return _healthPoints; }
+        }
+
+        public int Food
+        {
+            get { return _food; }
+        }
+
+        private void Start()
+        {
+            _playerAudio = ServiceLocator.Get<IPlayerAudioService>();
+
+            Systems.EventBus.ChangeSkeletonAnim += PlayAnimation;
+
+            _speed = _playerParams.speed;
+            _food = _playerParams.points;
+            _healthPoints = _playerParams.healthPoints;
+
+            AccelerateByTime();
+            Skeleton.AnimationState.SetAnimation(0, "Swim_Normal", true);
+        }
+
+        void Update()
+        {
+
+            if (IsGameEnd)
+                return;
+
+            this.transform.Translate(Vector2.left * _speed * Time.deltaTime);
+
+            if (Input.touchCount > 0)
             {
-                _endPos = touch.position;
+                Touch touch = Input.GetTouch(0);
+
+                if (touch.phase == TouchPhase.Began)
+                    _startPos = touch.position;
+
+                else if (touch.phase == TouchPhase.Ended)
+                {
+                    _endPos = touch.position;
+                    CheckSwipe();
+                }
+            }
+            // Проверка для мыши (редактор / ПК)
+            else if (Input.GetMouseButtonDown(0))
+            {
+                _startPos = Input.mousePosition;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                _endPos = Input.mousePosition;
                 CheckSwipe();
             }
         }
-        // Проверка для мыши (редактор / ПК)
-        else if (Input.GetMouseButtonDown(0))
+
+        private void AccelerateByTime()
         {
-            _startPos = Input.mousePosition;
+            DOVirtual.DelayedCall(10f, () =>
+            {
+                DOTween.To(() => _speed, x => _speed = x,
+                    _speed * _playerParams.acceleration, 2f)
+                .SetEase(Ease.OutQuad);
+
+                if (_speed < 12f)
+                    AccelerateByTime();
+                else
+                    _speed = 12f;
+            });
         }
-        else if (Input.GetMouseButtonUp(0))
+
+        private void CheckSwipe()
         {
-            _endPos = Input.mousePosition;
-            CheckSwipe();
+            float swipeDistY = _endPos.y - _startPos.y;
+
+            if (Mathf.Abs(swipeDistY) < _minSwipeDist)
+                return;
+
+            if (!_isMovingSide && swipeDistY > 0 && transform.position.y < 3)
+            {
+                _playerAudio.Play(_playerAudio.MoveSideClip);
+
+                _isMovingSide = true;
+                transform.DOMoveY(transform.position.y + 2f, 0.2f).SetEase(Ease.OutQuad)
+                    .OnComplete(() => _isMovingSide = false);
+            }
+            else if (!_isMovingSide && swipeDistY < 0 && transform.position.y > -3)
+            {
+                _playerAudio.Play(_playerAudio.MoveSideClip);
+
+                _isMovingSide = true;
+                transform.DOMoveY(transform.position.y - 2f, 0.2f).SetEase(Ease.OutQuad)
+                    .OnComplete(() => _isMovingSide = false);
+            }
         }
-    }
 
-    private void AccelerateByTime()
-    {
-        DOVirtual.DelayedCall(10f, () =>
+        public void ApplyInteraction(PlayerInteractionConfig config)
         {
-            DOTween.To(() => _speed, x => _speed = x,
-                _speed * _playerParams.acceleration, 2f)
-            .SetEase(Ease.OutQuad);
+            if (config.addPoints != 0)
+                AddPoints(config.addPoints);
 
-            if (_speed < 12f)
-                AccelerateByTime();
-            else
-                _speed = 12f;
-        });
-    }
+            if (config.damage > 0)
+                TakeDamage(config.damage);
 
-    private void CheckSwipe()
-    {
-        float swipeDistY = _endPos.y - _startPos.y;
+            if (config.killInstant || _healthPoints < 1)
+                PlayerDeath();
 
-        if (Mathf.Abs(swipeDistY) < _minSwipeDist)
-            return;
+            if (!string.IsNullOrEmpty(config.animation))
+                if (_healthPoints > 0)
+                    PlayAnimation(config.animation, config.animation2);
+                else
+                    PlayAnimation("Death", "Death_Idle");
 
-        if (!_isMovingSide && swipeDistY > 0 && transform.position.y < 3)
-        {
-            _playerAudio.Play(_playerAudio.MoveSideClip);
-
-            _isMovingSide = true;
-            transform.DOMoveY(transform.position.y + 2f, 0.2f).SetEase(Ease.OutQuad)
-                .OnComplete(() => _isMovingSide = false);
+            if (config.sound != null)
+                _playerAudio.Play(config.sound);
         }
-        else if (!_isMovingSide && swipeDistY < 0 && transform.position.y > -3)
+
+        private void AddPoints(int points)
         {
-            _playerAudio.Play(_playerAudio.MoveSideClip);
+            _food += points;
 
-            _isMovingSide = true;
-            transform.DOMoveY(transform.position.y - 2f, 0.2f).SetEase(Ease.OutQuad)
-                .OnComplete(() => _isMovingSide = false);
+            Systems.EventBus.OnPointsChanged?.Invoke(_food);
         }
-    }
 
-    public void ApplyInteraction(PlayerInteractionConfig config, GameObject source)
-    {
-        if (config.addPoints != 0)
-            AddPoints(config.addPoints, source);
+        private void TakeDamage(int damage)
+        {
+            if (DateTime.Now - _startIFramesTime > TimeSpan.FromSeconds(3))
+            {
+                _healthPoints--;
+                _startIFramesTime = DateTime.Now;
 
-        if (config.damage > 0)
-            TakeDamage(config.damage, source);
-
-        if (config.killInstant || _healthPoints < 1)
-            PlayerDeath();
-
-        if (!string.IsNullOrEmpty(config.animation))
-            if (_healthPoints > 0)
-                PlayAnimation(config.animation, config.animation2);
-            else
+                Systems.EventBus.OnHealthChanged?.Invoke(_healthPoints, false);
+            }
+            if (_healthPoints < 1)
+            {
                 PlayAnimation("Death", "Death_Idle");
 
-        if (config.sound != null)
-                _playerAudio.Play(config.sound);
+                _playerAudio.Play(_playerAudio.DeathClip);
+                _speed = 0f;
 
-        if (config.destroySource)
-            Destroy(source);
-    }
-
-    private void AddPoints(int points, GameObject collision)
-    {
-        Destroy(collision.gameObject);
-        _food+= points;
-
-        EventBus.OnPointsChanged?.Invoke(_food);
-    }
-
-    private void TakeDamage(int damage, GameObject collision)
-    {
-        if (DateTime.Now - _startIFramesTime > TimeSpan.FromSeconds(3))
-        {
-            _healthPoints--;
-            _startIFramesTime = DateTime.Now;
-
-            EventBus.OnHealthChanged?.Invoke(_healthPoints, false);
+                IsGameEnd = true;
+                Systems.EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+            }
+            else
+            {
+                IFramesGlowing(2f);
+            }
+            //Debug.LogError($"Collision - health: {_healthPoints}");
         }
-        if (_healthPoints < 1)
-        {
-            PlayAnimation("Death", "Death_Idle");
 
-            _playerAudio.Play(_playerAudio.DeathClip);
+        private void IFramesGlowing(float duration, float interval = 0.1f)
+        {
+            StopFlash();
+
+            float elapsed = 0f;
+
+            _flashSequence = DOTween.To(() => 0f, x =>
+            {
+                elapsed += Time.deltaTime;
+                bool on = Mathf.FloorToInt(elapsed / interval) % 2 == 0;
+                Skeleton.Skeleton.SetColor(on ? Color.white : Color.red);
+            }, 1f, duration)
+            .SetEase(Ease.Linear);
+        }
+
+        public void StopFlash()
+        {
+            _flashSequence?.Kill();
+            Skeleton.Skeleton.SetColor(Color.white);
+        }
+
+        private void PlayerDeath()
+        {
+            Systems.EventBus.OnHealthChanged?.Invoke(_healthPoints, true);
+
             _speed = 0f;
 
             IsGameEnd = true;
-            EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
-        }
-        else
-        {
-            IFramesGlowing(2f);
+            Systems.EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+            //Debug.LogError("Game Over");
         }
 
-        Destroy(collision.gameObject);
-        //Debug.LogError($"Collision - health: {_healthPoints}");
-    }
-
-    private void IFramesGlowing(float duration, float interval = 0.1f)
-    {
-        StopFlash();
-
-        float elapsed = 0f;
-
-        _flashSequence = DOTween.To(() => 0f, x =>
+        private void PlayAnimation(string animation, string animation2)
         {
-            elapsed += Time.deltaTime;
-            bool on = Mathf.FloorToInt(elapsed / interval) % 2 == 0;
-            Skeleton.Skeleton.SetColor(on ? Color.white : Color.red);
-        }, 1f, duration)
-        .SetEase(Ease.Linear);
-    }
+            Skeleton.AnimationState.SetAnimation(0, animation, false);
+            Skeleton.AnimationState.AddAnimation(0, animation2, true, 0);
+        }
 
-    public void StopFlash()
-    {
-        _flashSequence?.Kill();
-        Skeleton.Skeleton.SetColor(Color.white);
-    }
-
-    private void PlayerDeath()
-    {
-        EventBus.OnHealthChanged?.Invoke(_healthPoints, true);
-
-        _speed = 0f;
-
-        IsGameEnd = true;
-        EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
-        //Debug.LogError("Game Over");
-    }
-
-    private void PlayAnimation(string animation, string animation2)
-    {
-        Skeleton.AnimationState.SetAnimation(0, animation, false);
-        Skeleton.AnimationState.AddAnimation(0, animation2, true, 0);
-    }
-
-    private void OnDestroy()
-    {
-        EventBus.ChangeSkeletonAnim -= PlayAnimation;
+        private void OnDestroy()
+        {
+            Systems.EventBus.ChangeSkeletonAnim -= PlayAnimation;
+        }
     }
 }
