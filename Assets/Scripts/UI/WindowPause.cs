@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 using FishRunner.Systems;
+using FishRunner.Events;
 
 namespace FishRunner.UI
 {
@@ -22,7 +23,7 @@ namespace FishRunner.UI
             _buttonUnPause.onClick.AddListener(CloseWindowPause);
             _buttonMainMenu.onClick.AddListener(GoToMainMenu);
 
-            Systems.EventBus.OnRunPaused += ShowWindowPause;
+            EventBus.Subscribe<OnRunPaused>(ShowWindowPause);
 
             this.gameObject.SetActive(false);
         }
@@ -41,7 +42,7 @@ namespace FishRunner.UI
             
         }
 
-        private void ShowWindowPause()
+        private void ShowWindowPause(OnRunPaused e)
         {
             this.gameObject.SetActive(true);
             DarkOverlay.blocksRaycasts = true;
@@ -66,7 +67,7 @@ namespace FishRunner.UI
                        TimerText.gameObject.SetActive(false);
                        Time.timeScale = 1f;
 
-                       Systems.EventBus.OnRunUnpaused?.Invoke();
+                   EventBus.RaiseEvent(new OnRunUnpaused { });
                    });
         }
 
@@ -77,7 +78,7 @@ namespace FishRunner.UI
 
         private void OnDestroy()
         {
-            Systems.EventBus.OnRunPaused -= ShowWindowPause;
+            EventBus.Unsubscribe<OnRunPaused>(ShowWindowPause);
         }
     }
 }

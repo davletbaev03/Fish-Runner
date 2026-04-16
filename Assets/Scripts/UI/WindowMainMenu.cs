@@ -29,13 +29,9 @@ namespace FishRunner.UI
             _settingsButton.onClick.AddListener(ShowSettings);
 
             _analyticService = ServiceLocator.Get<IAnalyticService>();
-
-            //Systems.EventBus.OnSessionStarted += AnalyticAppStart;
-            //Debug.LogError("Event sub");
         }
         private void Start()
         {
-            //Systems.EventBus.OnSessionStarted?.Invoke();
             AnalyticAppStart();
         }
 
@@ -67,11 +63,6 @@ namespace FishRunner.UI
         private void ShowSettings()
         {
             _windowSettings.gameObject.SetActive(true);
-        }
-
-        private void OnDestroy()
-        {
-            Systems.EventBus.OnSessionStarted -= AnalyticAppStart;
         }
     }
 }

@@ -1,4 +1,5 @@
 using DG.Tweening;
+using FishRunner.Events;
 using FishRunner.Services;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,21 +16,21 @@ namespace FishRunner.Systems
             _player = ServiceLocator.Get<IPlayerService>();
             if (_player == null)
                 this.transform.position = new Vector3(_player.Position.x + 5, transform.position.y, transform.position.z);
-            Systems.EventBus.OnRunEnded += StopMusic;
+            EventBus.Subscribe<OnRunEnded>(StopMusic);
         }
         void Update()
         {
             this.transform.position = new Vector3(_player.Position.x + 5, transform.position.y, transform.position.z);
         }
 
-        private void StopMusic(int a, int b)
+        private void StopMusic(OnRunEnded e)
         {
             _source.Stop();
         }
 
         private void OnDestroy()
         {
-            Systems.EventBus.OnRunEnded -= StopMusic;
+            EventBus.Unsubscribe<OnRunEnded>(StopMusic);
         }
     }
 }

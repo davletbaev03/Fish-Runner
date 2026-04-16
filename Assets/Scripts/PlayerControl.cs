@@ -1,5 +1,6 @@
 using DG.Tweening;
 using FishRunner.Configs;
+using FishRunner.Events;
 using FishRunner.Services;
 using FishRunner.Systems;
 using Spine.Unity;
@@ -56,7 +57,7 @@ namespace FishRunner.Player
         {
             _playerAudio = ServiceLocator.Get<IPlayerAudioService>();
 
-            Systems.EventBus.ChangeSkeletonAnim += PlayAnimation;
+            EventBus.Subscribe<ChangeSkeletonAnim>(PlayAnimation);
 
             _speed = _playerParams.speed;
             _food = _playerParams.points;
@@ -152,9 +153,10 @@ namespace FishRunner.Player
 
             if (!string.IsNullOrEmpty(config.animation))
                 if (_healthPoints > 0)
-                    PlayAnimation(config.animation, config.animation2);
+                    PlayAnimation(new ChangeSkeletonAnim{ Anim1 = config.animation, 
+                        Anim2 =config.animation2});
                 else
-                    PlayAnimation("Death", "Death_Idle");
+                    PlayAnimation(new ChangeSkeletonAnim { Anim1 = "Death", Anim2 = "Death_Idle" });
 
             if (config.sound != null)
                 _playerAudio.Play(config.sound);
@@ -164,7 +166,7 @@ namespace FishRunner.Player
         {
             _food += points;
 
-            Systems.EventBus.OnPointsChanged?.Invoke(_food);
+            EventBus.RaiseEvent(new OnPointsChanged { Points = _food });
         }
 
         private void TakeDamage(int damage)
@@ -174,17 +176,17 @@ namespace FishRunner.Player
                 _healthPoints--;
                 _startIFramesTime = DateTime.Now;
 
-                Systems.EventBus.OnHealthChanged?.Invoke(_healthPoints, false);
+                EventBus.RaiseEvent(new OnHealthChanged{ HealthPoints = _healthPoints, InstantDeath = false});
             }
             if (_healthPoints < 1)
             {
-                PlayAnimation("Death", "Death_Idle");
+                PlayAnimation(new ChangeSkeletonAnim { Anim1 = "Death", Anim2 = "Death_Idle" });
 
                 _playerAudio.Play(_playerAudio.DeathClip);
                 _speed = 0f;
 
                 IsGameEnd = true;
-                Systems.EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+                EventBus.RaiseEvent(new OnRunEnded{ Food = _food, Distance = Mathf.FloorToInt(transform.position.x)});
             }
             else
             {
@@ -216,24 +218,24 @@ namespace FishRunner.Player
 
         private void PlayerDeath()
         {
-            Systems.EventBus.OnHealthChanged?.Invoke(_healthPoints, true);
+            EventBus.RaiseEvent(new OnHealthChanged { HealthPoints = _healthPoints, InstantDeath = true });
 
             _speed = 0f;
 
             IsGameEnd = true;
-            Systems.EventBus.OnRunEnded?.Invoke(_food, Mathf.FloorToInt(transform.position.x));
+            EventBus.RaiseEvent(new OnRunEnded { Food = _food, Distance = Mathf.FloorToInt(transform.position.x) });
             //Debug.LogError("Game Over");
         }
 
-        private void PlayAnimation(string animation, string animation2)
+        private void PlayAnimation(ChangeSkeletonAnim e)
         {
-            Skeleton.AnimationState.SetAnimation(0, animation, false);
-            Skeleton.AnimationState.AddAnimation(0, animation2, true, 0);
+            Skeleton.AnimationState.SetAnimation(0, e.Anim1, false);
+            Skeleton.AnimationState.AddAnimation(0, e.Anim2, true, 0);
         }
 
         private void OnDestroy()
         {
-            Systems.EventBus.ChangeSkeletonAnim -= PlayAnimation;
+            EventBus.Unsubscribe<ChangeSkeletonAnim>(PlayAnimation);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
+using FishRunner.Events;
 
 namespace FishRunner.Systems
 {
@@ -16,8 +17,8 @@ namespace FishRunner.Systems
 
         private void Start()
         {
-            Systems.EventBus.OnRunEnded += AnalyticRunEnd;
-            Systems.EventBus.OnRunStarted += AnalyticRunStart;
+            EventBus.Subscribe<OnRunEnded>(AnalyticRunEnd);
+            EventBus.Subscribe<OnRunStarted>(AnalyticRunStart);
 
             _analyticService = ServiceLocator.Get<IAnalyticService>();
             _recordsManager = ServiceLocator.Get<IRecordsManager>();
@@ -25,10 +26,10 @@ namespace FishRunner.Systems
 
             InitializeUI();
 
-            Systems.EventBus.OnRunStarted?.Invoke();
+            EventBus.RaiseEvent(new OnRunStarted { });
         }
 
-        private void AnalyticRunStart()
+        private void AnalyticRunStart(OnRunStarted e)
         {
             _analyticService.StartRun();
             _analyticService.LogEvent(
@@ -44,7 +45,7 @@ namespace FishRunner.Systems
             );
         }
 
-        private void AnalyticRunEnd(int food, int distance)
+        private void AnalyticRunEnd(OnRunEnded e)
         {
             _analyticService.LogEvent(
                 "run_end",
@@ -54,8 +55,8 @@ namespace FishRunner.Systems
                 { "best_distance", _recordsManager.ScoreData.playerData.distance },
                 { "best_food", (_recordsManager.ScoreData.playerData.score -
                 _recordsManager.ScoreData.playerData.distance) / 10},
-                { "result_distance",distance},
-                { "result_food", food }
+                { "result_distance",e.Distance},
+                { "result_food", e.Food }
                 }
             );
         }
@@ -69,9 +70,9 @@ namespace FishRunner.Systems
 
         private void OnDestroy()
         {
-            Systems.EventBus.OnRunEnded -= AnalyticRunEnd;
+            EventBus.Unsubscribe<OnRunEnded>(AnalyticRunEnd);
 
-            Systems.EventBus.OnRunStarted -= AnalyticRunStart;
+            EventBus.Unsubscribe<OnRunStarted>(AnalyticRunStart);
         }
     }
 }

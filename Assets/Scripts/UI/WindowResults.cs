@@ -1,4 +1,5 @@
 using DG.Tweening;
+using FishRunner.Events;
 using FishRunner.Services;
 using FishRunner.Systems;
 using System.Collections;
@@ -29,7 +30,7 @@ namespace FishRunner.UI
         {
             _recordsManager = ServiceLocator.Get<IRecordsManager>();
 
-            Systems.EventBus.OnRunEnded += ShowWindowResults;
+            EventBus.Subscribe<OnRunEnded>(ShowWindowResults);
 
             _buttonRestart.onClick.AddListener(RestartGame);
             _buttonMainMenu.onClick.AddListener(GoToMainMenu);
@@ -55,20 +56,20 @@ namespace FishRunner.UI
             SceneManager.LoadScene("MainMenu");
         }
 
-        private void ShowWindowResults(int food, int distance)
+        private void ShowWindowResults(OnRunEnded e)
         {
             this.gameObject.SetActive(true);
-            distance = Mathf.FloorToInt(distance);
+            e.Distance = Mathf.FloorToInt(e.Distance);
 
-            _foodText.text = "Food: " + food;
-            _distanceText.text = "Distance: " + distance;
-            _scoreText.text = "Total Score: " + (food * 10 + distance);
+            _foodText.text = "Food: " + e.Food;
+            _distanceText.text = "Distance: " + e.Distance;
+            _scoreText.text = "Total Score: " + (e.Food * 10 + e.Distance);
 
-            _recordsManager.AddScore(_recordsManager.ScoreData.playerData.name, (food * 10 + distance), distance);
+            _recordsManager.AddScore(_recordsManager.ScoreData.playerData.name, (e.Food * 10 + e.Distance), e.Distance);
 
             _newRecordText.gameObject.SetActive(
                 _recordsManager.TrySetNewPersonalRecord(_recordsManager.ScoreData.playerData.name
-                , (food * 10 + distance), distance));
+                , (e.Food * 10 + e.Distance), e.Distance));
         }
 
 
@@ -79,7 +80,7 @@ namespace FishRunner.UI
 
         private void OnDestroy()
         {
-            Systems.EventBus.OnRunEnded -= ShowWindowResults;
+            EventBus.Unsubscribe<OnRunEnded>(ShowWindowResults);
         }
     }
 }
