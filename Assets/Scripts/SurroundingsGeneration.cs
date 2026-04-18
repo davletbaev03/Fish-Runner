@@ -8,13 +8,14 @@ namespace FishRunner.Systems
 {
     public class SurroundingsGeneration : MonoBehaviour
     {
+        private float _spawnPeriod = 18f;
         private IPlayerService _player = null;
-
-        [SerializeField] private List<GameObject> _obstacles = new List<GameObject>();
-        [SerializeField] private List<GameObject> _food = new List<GameObject>();
 
         [SerializeField] private DateTime _spawnTime;
 
+        private IMultiObjectPool _pool;
+
+        
         void Start()
         {
             _player = ServiceLocator.Get<IPlayerService>();
@@ -23,14 +24,17 @@ namespace FishRunner.Systems
             InstantiateFood();
         }
 
-
+        public void Init(IMultiObjectPool pool)
+        {
+            _pool = pool;
+        }
 
         void Update()
         {
             if (_player.IsGameEnd)
                 return;
 
-            if (Time.timeScale > 0f && (DateTime.Now - _spawnTime).TotalSeconds > 18f / _player.Speed && UnityEngine.Random.Range(1, 100) > 50)
+            if (Time.timeScale > 0f && (DateTime.Now - _spawnTime).TotalSeconds > _spawnPeriod / _player.Speed && UnityEngine.Random.Range(1, 100) > 50)
             {
                 InstantiateObstacles();
                 InstantiateFood();
@@ -39,59 +43,64 @@ namespace FishRunner.Systems
 
         private void InstantiateFood()
         {
-            int foodNumber = UnityEngine.Random.Range(0, _food.Count);
             Vector3 spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(15, 17),
                     UnityEngine.Random.Range(-2, 3) * 2, 0);
 
-            Instantiate(_food[foodNumber], spawnPosition, Quaternion.identity);
+            Instantiate(_pool.Get(ObstacleType.Food),
+                spawnPosition, Quaternion.identity);
 
         }
         private void InstantiateObstacles()
         {
-            int obstacleNumber = UnityEngine.Random.Range(0, _obstacles.Count);
             Vector3 spawnPosition = Vector3.zero;
             switch (UnityEngine.Random.Range(0, 4))
             {
                 case 0:
                     {
-                        if (_obstacles[obstacleNumber].name.StartsWith("coral"))
+                        GameObject obstacle = null;
+                        if (UnityEngine.Random.Range(0,2) == 0)
                         {
+                            obstacle = _pool.Get(ObstacleType.Coral);
                             spawnPosition = new Vector3(
                                 _player.Position.x + UnityEngine.Random.Range(17, 22),
                                 UnityEngine.Random.Range(-3, -5), 0);
                         }
                         else
                         {
+                            obstacle = _pool.Get(ObstacleType.NetAndTrash);
                             spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                                 UnityEngine.Random.Range(-2, 3) * 2, _player.Position.z);
                         }
-                        Instantiate(_obstacles[obstacleNumber], spawnPosition, Quaternion.identity);
+                        obstacle.transform.position = spawnPosition;
+                        _spawnPeriod = 8f;
                         break;
                     }
                 case 1:
                     {
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             -2, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
 
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             2, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _spawnPeriod = 14f;
                         break;
                     }
                 case 2:
                     {
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             -4, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
 
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             0, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
 
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             4, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _spawnPeriod = 18f;
                         break;
                     }
                 case 3:
@@ -99,16 +108,17 @@ namespace FishRunner.Systems
                         int minus = UnityEngine.Random.Range(0, 2) == 1 ? 1 : -1;
                         spawnPosition = new Vector3(_player.Position.x + 17f,
                             -4 * minus, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
                         spawnPosition = new Vector3(_player.Position.x + 18.5f,
                             -2 * minus, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
                         spawnPosition = new Vector3(_player.Position.x + 20f,
                             0, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
                         spawnPosition = new Vector3(_player.Position.x + 21.5f,
                             2 * minus, 0);
-                        Instantiate(_obstacles[UnityEngine.Random.Range(17, 27)], spawnPosition, Quaternion.identity);
+                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _spawnPeriod = 20f;
                         break;
                     }
             }

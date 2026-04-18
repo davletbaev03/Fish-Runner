@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1283520952644915770}
   m_Layer: 0
   m_Name: coral5
-  m_TagString: Obstacle
+  m_TagString: Coral
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
