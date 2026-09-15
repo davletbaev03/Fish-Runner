@@ -11,8 +11,10 @@ using UnityEngine.UI;
 
 namespace FishRunner.UI
 {
-    public class WindowPlayerUI : MonoBehaviour
+    public class WindowPlayerUI : MonoBehaviour, IUIObject
     {
+        public string Id => nameof(WindowPlayerUI);
+
         [SerializeField] private Button _buttonPause = null;
 
         [SerializeField] private TextMeshProUGUI _foodText = null;
@@ -37,12 +39,12 @@ namespace FishRunner.UI
 
             Systems.EventBus.Subscribe<OnRunPaused>(_ =>
             {
-                this.gameObject.SetActive(false);
+                Hide();
             });
 
             Systems.EventBus.Subscribe<OnRunUnpaused> (_ =>
             {
-                this.gameObject.SetActive(true);
+                Show();
             });
 
             Systems.EventBus.Subscribe<OnHealthChanged>(UpdateHealth);
@@ -100,12 +102,22 @@ namespace FishRunner.UI
                 Anim2 = "Idle" 
             });
 
-            this.gameObject.SetActive(false);
+            Hide();
         }
 
         private void Deactivation(OnRunEnded e)
         {
+            Hide();
+        }
+
+        public void Hide()
+        {
             this.gameObject.SetActive(false);
+        }
+
+        public void Show()
+        {
+            this.gameObject.SetActive(true);
         }
 
         private void OnDestroy()

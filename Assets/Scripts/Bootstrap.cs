@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace FishRunner.Systems
 {
@@ -14,11 +13,7 @@ namespace FishRunner.Systems
     {
         [Header ("UI")]
         [SerializeField] private Transform _canvas;
-        [SerializeField] private WindowResults _resultWindowPrefab;
-        [SerializeField] private WindowPause _pauseWindowPrefab;
-        [SerializeField] private TextMeshProUGUI _textReadyTimer;
-        [SerializeField] private CanvasGroup _panelDarkOverlay;
-        [SerializeField] private WindowPlayerUI _playerUIPrefab;
+        [SerializeField] private UIConfig _configUI;
 
         [Header("Player")]
         [SerializeField] private PlayerControl _player;
@@ -45,8 +40,7 @@ namespace FishRunner.Systems
 
         private void Awake()
         {
-            var UIService = new UIService(_canvas, _resultWindowPrefab, _pauseWindowPrefab,
-                _textReadyTimer, _panelDarkOverlay, _playerUIPrefab);
+            var UIService = new UIService(_canvas, _configUI);
             ServiceLocator.Register<IUIService>(UIService);
 
             var playerService = new PlayerService(_player);

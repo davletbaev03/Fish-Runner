@@ -46,8 +46,7 @@ namespace FishRunner.Systems
             Vector3 spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(15, 17),
                     UnityEngine.Random.Range(-2, 3) * 2, 0);
 
-            Instantiate(_pool.Get(ObstacleType.Food),
-                spawnPosition, Quaternion.identity);
+            _pool.Get(ObstacleType.Food).gameObject.transform.position = spawnPosition;
 
         }
         private void InstantiateObstacles()

@@ -355,11 +355,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvas: {fileID: 138766360}
-  _resultWindowPrefab: {fileID: 1050586249766466442, guid: 66c962b2425084f4a80e9e47a1c95425, type: 3}
-  _pauseWindowPrefab: {fileID: 8916417063628426427, guid: 039fc5f1200f3cb4091edfd91b30524c, type: 3}
-  _textReadyTimer: {fileID: 5108557052284123633, guid: 38b5feabd3be59b4788b4f9f9fcca551, type: 3}
-  _panelDarkOverlay: {fileID: 8152200096311452627, guid: d536f6afaa03989448c70974de814f7e, type: 3}
-  _playerUIPrefab: {fileID: 8174031121757370177, guid: f84dd6d1c853a934dbc09459caf3afac, type: 3}
+  _configUI: {fileID: 11400000, guid: b5731d120c12ac8428251157df518c16, type: 2}
   _player: {fileID: 962347542}
   _audioSource: {fileID: 962347543}
   _moveSideClip: {fileID: 11400000, guid: 75ff9061003008143b8af88a13eca8b2, type: 2}

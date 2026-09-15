@@ -1,11 +1,12 @@
+using FishRunner.Events;
 using FishRunner.Services;
+using FishRunner.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
-using FishRunner.Events;
 
 namespace FishRunner.Systems
 {
@@ -63,9 +64,9 @@ namespace FishRunner.Systems
 
         private void InitializeUI()
         {
-            _uIService.InstantiateWidnowPause();
-            _uIService.InstantiateWidnowResult();
-            _uIService.InstantiatePlayerUI();
+            _uIService.Instantiate(nameof(WindowPause));
+            _uIService.Instantiate(nameof(WindowResults));
+            _uIService.Instantiate(nameof(WindowPlayerUI));
         }
 
         private void OnDestroy()

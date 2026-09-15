@@ -937,7 +937,7 @@ GameObject:
   - component: {fileID: 9221235276997367216}
   - component: {fileID: 8174031121757370177}
   m_Layer: 5
-  m_Name: WindowInGame
+  m_Name: WindowPlayerUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using FishRunner.UI;
 using TMPro;
+using FishRunner.Configs;
 
 namespace FishRunner.Services
 {
@@ -10,45 +11,23 @@ namespace FishRunner.Services
     {
         private Transform _canvas;
 
-        private WindowResults _resultWindowPrefab;
-        private WindowPause _pauseWindowPrefab;
-        private TextMeshProUGUI _textReadyTimer;
-        private CanvasGroup _panelDarkOverlay;
-        private WindowPlayerUI _playerUIPrefab;
+        private UIConfig _config;
 
-        public UIService(Transform canvas, WindowResults result, WindowPause pause,
-            TextMeshProUGUI textReadyTimer, CanvasGroup panelDarkOverlay,
-            WindowPlayerUI playerUIPrefab)
+        public UIService(Transform canvas, UIConfig config)
         {
             _canvas = canvas;
-            _resultWindowPrefab = result;
-            _pauseWindowPrefab = pause;
-            _textReadyTimer = textReadyTimer;
-            _panelDarkOverlay = panelDarkOverlay;
-            _playerUIPrefab = playerUIPrefab;
+            _config = config;
         }
 
-        public void InstantiateWidnowPause()
+        public void Instantiate(string id)
         {
-            var overlay = Object.Instantiate(_panelDarkOverlay, _canvas);
-            var pauseWindow = Object.Instantiate(_pauseWindowPrefab, _canvas);
-            var timer = Object.Instantiate(_textReadyTimer, _canvas);
+            if (!_config.ObjectsDict.TryGetValue(id, out var prefab))
+            {
+                Debug.LogError($"UI prefab with id '{id}' not found.");
+                return;
+            }
 
-            pauseWindow.DarkOverlay = overlay;
-            pauseWindow.TimerText = timer;
-
-            pauseWindow.DarkOverlay.gameObject.SetActive(true);
-            pauseWindow.TimerText.gameObject.SetActive(false);
-        }
-
-        public void InstantiateWidnowResult()
-        {
-            Object.Instantiate(_resultWindowPrefab, _canvas);
-        }
-        
-        public void InstantiatePlayerUI()
-        {
-            Object.Instantiate(_playerUIPrefab, _canvas);
+            Object.Instantiate(prefab, _canvas);
         }
     }
 }

@@ -4,11 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using FishRunner.Services;
+using FishRunner.Configs;
 
 namespace FishRunner.UI
 {
-    public class WindowRecords : MonoBehaviour
+    public class WindowRecords : MonoBehaviour, IUIObject
     {
+        public string Id => nameof(WindowRecords);
+
         [SerializeField] private Button _exitButton = null;
 
         public IRecordsManager _recordsManager = null;
@@ -23,7 +26,7 @@ namespace FishRunner.UI
             _recordsManager = ServiceLocator.Get<IRecordsManager>();
             SetLeaderboard(_recordsManager.ScoreData.scores);
 
-            this.gameObject.SetActive(false);
+            Hide();
         }
 
         private void SetLeaderboard(List<ScoreEntry> records)
@@ -38,6 +41,16 @@ namespace FishRunner.UI
             }
         }
         private void CloseLeaderboard()
+        {
+            Hide();
+        }
+
+        public void Show()
+        {
+            this.gameObject.SetActive(true);
+        }
+
+        public void Hide()
         {
             this.gameObject.SetActive(false);
         }

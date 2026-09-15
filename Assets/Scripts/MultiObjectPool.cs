@@ -19,27 +19,29 @@ namespace FishRunner.Systems
 
     public class MultiObjectPool : IMultiObjectPool
     {
-        private Dictionary<ObstacleType, List<GameObject>> _prefabs;
+        private Dictionary<ObstacleType, List<GameObject>> _prefabsConfig;
 
         private Dictionary<ObstacleType, Queue<GameObject>> _pools = new();
 
-        public MultiObjectPool(Dictionary<ObstacleType, List<GameObject>> prefabs, Dictionary<ObstacleType, int> counts)
+        public MultiObjectPool(Dictionary<ObstacleType, List<GameObject>> prefabs, 
+            Dictionary<ObstacleType, int> counts)
         {
-            _prefabs = prefabs;
+            _prefabsConfig = prefabs;
 
-            foreach (var pair in _prefabs)
+            foreach (var pair in _prefabsConfig)
             {
-                InitializeQueue(pair.Value, counts[pair.Key], pair.Key);
+                InitializeHeatQueue(pair.Value, counts[pair.Key], pair.Key);
             }
         }
 
-        private void InitializeQueue(List<GameObject> list, int count, ObstacleType type)
+        private void InitializeHeatQueue(List<GameObject> list, int count, ObstacleType type)
         {
             _pools[type] = new Queue<GameObject>();
 
             for (int i = 0; i < count; i++)
             {
-                var obj = Object.Instantiate(list[Random.Range(0, list.Count)], new Vector3 (1f, 10f, 1f), Quaternion.identity);
+                var obj = Object.Instantiate(list[Random.Range(0, list.Count)], 
+                    new Vector3 (1f, 10f, 1f), Quaternion.identity);
                 obj.gameObject.SetActive(false);
                 _pools[type].Enqueue(obj);
             }
@@ -47,15 +49,16 @@ namespace FishRunner.Systems
 
         public GameObject Get(ObstacleType type)
         {
-            if (_pools[type].Count == 0)
+            if (_pools[type].Count > 0)
             {
-                var obj = Object.Instantiate(_prefabs[type][Random.Range(0, _prefabs[type].Count)]);
-                return obj;
+                var item = _pools[type].Dequeue();
+                item.gameObject.SetActive(true);
+                return item;
             }
 
-            var item = _pools[type].Dequeue();
-            item.gameObject.SetActive(true);
-            return item;
+            var obj = Object.Instantiate(_prefabsConfig[type][Random.Range(0, _prefabsConfig[type].Count)]);
+            return obj;
+
         }
 
         public void Release(GameObject item, ObstacleType type)

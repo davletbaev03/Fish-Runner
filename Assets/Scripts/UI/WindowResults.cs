@@ -1,10 +1,12 @@
 using DG.Tweening;
+using FishRunner.Configs;
 using FishRunner.Events;
 using FishRunner.Services;
 using FishRunner.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
@@ -12,8 +14,10 @@ using UnityEngine.UI;
 
 namespace FishRunner.UI
 {
-    public class WindowResults : MonoBehaviour
+    public class WindowResults : MonoBehaviour, IUIObject
     {
+        public string Id => nameof(WindowResults);
+
         [SerializeField] private Button _buttonRestart = null;
         [SerializeField] private Button _buttonMainMenu = null;
 
@@ -30,12 +34,12 @@ namespace FishRunner.UI
         {
             _recordsManager = ServiceLocator.Get<IRecordsManager>();
 
-            EventBus.Subscribe<OnRunEnded>(ShowWindowResults);
+            Systems.EventBus.Subscribe<OnRunEnded>(ShowWindowResults);
 
             _buttonRestart.onClick.AddListener(RestartGame);
             _buttonMainMenu.onClick.AddListener(GoToMainMenu);
 
-            this.gameObject.SetActive(false);
+            Hide();
         }
         private void OnEnable()
         {
@@ -58,7 +62,7 @@ namespace FishRunner.UI
 
         private void ShowWindowResults(OnRunEnded e)
         {
-            this.gameObject.SetActive(true);
+            Show();
             e.Distance = Mathf.FloorToInt(e.Distance);
 
             _foodText.text = "Food: " + e.Food;
@@ -80,7 +84,17 @@ namespace FishRunner.UI
 
         private void OnDestroy()
         {
-            EventBus.Unsubscribe<OnRunEnded>(ShowWindowResults);
+            Systems.EventBus.Unsubscribe<OnRunEnded>(ShowWindowResults);
+        }
+
+        public void Show()
+        {
+            this.gameObject.SetActive(true);
+        }
+
+        public void Hide()
+        {
+            gameObject.SetActive(false);
         }
     }
 }

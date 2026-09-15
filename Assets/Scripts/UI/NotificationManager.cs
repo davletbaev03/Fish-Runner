@@ -1,7 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+
+#if UNITY_ANDROID
 using Unity.Notifications.Android;
+#endif
+
 using UnityEngine;
 
 namespace FishRunner.Systems
@@ -18,8 +22,10 @@ namespace FishRunner.Systems
             RegisterChannel();
         }
 
+
         private void RegisterChannel()
         {
+            #if UNITY_ANDROID
             var channel = new AndroidNotificationChannel
             {
                 Id = CHANNEL_ID,
@@ -29,6 +35,7 @@ namespace FishRunner.Systems
             };
 
             AndroidNotificationCenter.RegisterNotificationChannel(channel);
+            #endif
         }
 
         private void OnApplicationPause(bool pause)
@@ -52,11 +59,14 @@ namespace FishRunner.Systems
 
         private void OnApplicationFocus(bool focus)
         {
+            #if UNITY_ANDROID
             if (_lastTimeActive - DateTime.Now < TimeSpan.FromMinutes(15))
                 AndroidNotificationCenter.CancelAllScheduledNotifications();
+            #endif
         }
         private void ScheduleNotification()
         {
+            #if UNITY_ANDROID
             CancelNotification();
 
             var notification = new AndroidNotification
@@ -67,11 +77,14 @@ namespace FishRunner.Systems
             };
 
             AndroidNotificationCenter.SendNotification(notification, CHANNEL_ID);
+            #endif
         }
 
         private void CancelNotification()
         {
+            #if UNITY_ANDROID
             AndroidNotificationCenter.CancelAllScheduledNotifications();
+            #endif
         }
     }
 }

@@ -6,8 +6,10 @@ using UnityEngine.UI;
 
 namespace FishRunner.UI
 {
-    public class WindowSettings : MonoBehaviour
+    public class WindowSettings : MonoBehaviour, IUIObject
     {
+        public string Id => nameof(WindowSettings);
+
         [SerializeField] private AudioMixer audioMixer = null;
 
         [SerializeField] private Toggle toggleSFX;
@@ -29,7 +31,7 @@ namespace FishRunner.UI
             OnSFXToggle(toggleSFX.isOn);
             OnMusicToggle(toggleMusic.isOn);
 
-            this.gameObject.SetActive(false);
+            Hide();
         }
 
         private void OnMusicToggle(bool isOn)
@@ -45,6 +47,16 @@ namespace FishRunner.UI
         }
 
         private void ExitSettings()
+        {
+            Hide();
+        }
+
+        public void Show()
+        {
+            this.gameObject.SetActive(true);
+        }
+
+        public void Hide()
         {
             this.gameObject.SetActive(false);
         }

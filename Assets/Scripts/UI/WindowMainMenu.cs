@@ -7,12 +7,13 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FishRunner.Services;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace FishRunner.UI
 {
-    public class WindowMainMenu : MonoBehaviour
+    public class WindowMainMenu : MonoBehaviour, IUIObject
     {
+        public string Id => nameof(WindowMainMenu);
+
         [SerializeField] private Button _startButton = null;
         [SerializeField] private Button _recordsButton = null;
         [SerializeField] private Button _settingsButton = null;
@@ -58,11 +59,21 @@ namespace FishRunner.UI
 
         private void ShowRecords()
         {
-            _windowRecords.gameObject.SetActive(true);
+            _windowRecords.Show();
         }
         private void ShowSettings()
         {
-            _windowSettings.gameObject.SetActive(true);
+            _windowSettings.Show();
+        }
+
+        public void Show()
+        {
+            gameObject.SetActive(true);
+        }
+
+        public void Hide()
+        {
+            gameObject.SetActive(false);
         }
     }
 }

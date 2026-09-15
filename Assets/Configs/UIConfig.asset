@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d037220fa3ff94f45bd9dd2627260bf6, type: 3}
+  m_Name: UIConfig
+  m_EditorClassIdentifier: 
+  _objects:
+  - Id: WindowPause
+    Object: {fileID: 274996441128641526, guid: 039fc5f1200f3cb4091edfd91b30524c, type: 3}
+  - Id: WindowResults
+    Object: {fileID: 7382671505704192777, guid: 66c962b2425084f4a80e9e47a1c95425, type: 3}
+  - Id: WindowPlayerUI
+    Object: {fileID: 6186846103315354916, guid: f84dd6d1c853a934dbc09459caf3afac, type: 3}

@@ -7,20 +7,25 @@ using DG.Tweening;
 using TMPro;
 using FishRunner.Systems;
 using FishRunner.Events;
+using FishRunner.Configs;
 
 namespace FishRunner.UI
 {
-    public class WindowPause : MonoBehaviour
+    public class WindowPause : MonoBehaviour, IUIObject
     {
+        public string Id => nameof(WindowPause);
+
         [SerializeField] private Button _buttonUnPause = null;
         [SerializeField] private Button _buttonMainMenu = null;
 
-        public CanvasGroup DarkOverlay = null;
-        public TextMeshProUGUI TimerText = null;
+        public Image image = null;
+        [SerializeField] public CanvasGroup DarkOverlay = null;
+        [SerializeField] public TextMeshProUGUI TimerText = null;
 
         void Start()
         {
-            _buttonUnPause.onClick.AddListener(CloseWindowPause);
+            image = this.GetComponent<Image>();
+            _buttonUnPause.onClick.AddListener(Hide);
             _buttonMainMenu.onClick.AddListener(GoToMainMenu);
 
             EventBus.Subscribe<OnRunPaused>(ShowWindowPause);
@@ -28,23 +33,42 @@ namespace FishRunner.UI
             this.gameObject.SetActive(false);
         }
 
-        private void CloseWindowPause()
+        public void Hide()
         {
+            image.color = new Color(
+                image.color.r,
+                image.color.g,
+                image.color.b,
+                0f
+            );
+            _buttonMainMenu.gameObject.SetActive(false);
+            _buttonUnPause.gameObject.SetActive(false);
             TimerText.gameObject.SetActive(true);
 
             DarkOverlay.blocksRaycasts = false;
             DarkOverlay.DOFade(0f, 0.25f);
 
             StartReadyTimer();
-            
-            this.gameObject.SetActive(false);
-
-            
         }
 
         private void ShowWindowPause(OnRunPaused e)
         {
+            Show();
+        }
+
+        public void Show()
+        {
             this.gameObject.SetActive(true);
+
+            image.color = new Color(
+                image.color.r,
+                image.color.g,
+                image.color.b,
+                1f
+            );
+            _buttonMainMenu.gameObject.SetActive(true);
+            _buttonUnPause.gameObject.SetActive(true);
+
             DarkOverlay.blocksRaycasts = true;
             DarkOverlay.DOFade(0.6f, 0.25f).SetUpdate(true);
         }
@@ -65,6 +89,7 @@ namespace FishRunner.UI
                        TimerText.text = "Go!";
 
                        TimerText.gameObject.SetActive(false);
+                       this.gameObject.SetActive(false);
                        Time.timeScale = 1f;
 
                    EventBus.RaiseEvent(new OnRunUnpaused { });
