@@ -5,6 +5,7 @@ using FishRunner.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 
 namespace FishRunner.Systems
@@ -23,6 +24,7 @@ namespace FishRunner.Systems
         [SerializeField] private SoundConfig _moveSideClip;
         [SerializeField] private SoundConfig _deathClip;
 
+        [Header("Other")]
         [SerializeField] private SurroundingsGeneration _spawner = null;
         [SerializeField] private DespawnZone _despawnZone = null;
 
@@ -65,7 +67,8 @@ namespace FishRunner.Systems
             _pool[ObstacleType.Food] = _foodPrefabs;
             _pool[ObstacleType.NetAndTrash] = _netAndTrashPrefabs;
 
-            IMultiObjectPool pool = new MultiObjectPool(_pool, _poolCounts);
+            ObjectsFactory factory = new UnityObjectFactory();
+            IMultiObjectPool pool = new MultiObjectPool(_pool, _poolCounts, factory);
             _spawner.Init(pool);
             _despawnZone.Init(pool);
         }

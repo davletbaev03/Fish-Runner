@@ -19,14 +19,18 @@ namespace FishRunner.Systems
 
     public class MultiObjectPool : IMultiObjectPool
     {
+        private ObjectsFactory _factory;
+
         private Dictionary<ObstacleType, List<GameObject>> _prefabsConfig;
 
         private Dictionary<ObstacleType, Queue<GameObject>> _pools = new();
 
         public MultiObjectPool(Dictionary<ObstacleType, List<GameObject>> prefabs, 
-            Dictionary<ObstacleType, int> counts)
+            Dictionary<ObstacleType, int> counts,
+            ObjectsFactory factory)
         {
             _prefabsConfig = prefabs;
+            _factory = factory;
 
             foreach (var pair in _prefabsConfig)
             {
@@ -40,10 +44,10 @@ namespace FishRunner.Systems
 
             for (int i = 0; i < count; i++)
             {
-                var obj = Object.Instantiate(list[Random.Range(0, list.Count)], 
-                    new Vector3 (1f, 10f, 1f), Quaternion.identity);
+                var obj = _factory.Create(list[Random.Range(0, list.Count)]);
+
+                obj.transform.position = new Vector3(1f, 10f, 1f);
                 obj.gameObject.SetActive(false);
-                _pools[type].Enqueue(obj);
             }
         }
 
@@ -56,9 +60,9 @@ namespace FishRunner.Systems
                 return item;
             }
 
-            var obj = Object.Instantiate(_prefabsConfig[type][Random.Range(0, _prefabsConfig[type].Count)]);
-            return obj;
+            var obj = _factory.Create(_prefabsConfig[type][Random.Range(0, _prefabsConfig[type].Count)]);
 
+            return obj;
         }
 
         public void Release(GameObject item, ObstacleType type)
