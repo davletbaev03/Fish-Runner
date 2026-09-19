@@ -1,8 +1,9 @@
+using FishRunner.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ObjectsFactory
 {
-    public abstract GameObject Create(GameObject prefab);
+    public abstract GameObject Create(GameObject prefab, ObstacleType type);
 }

@@ -1,14 +1,22 @@
 using FishRunner.Configs;
 using FishRunner.Player;
+using FishRunner.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace FishRunner.Player
 {
-    public class PlayerInteractionHandler : MonoBehaviour
+    public class PlayerInteractionHandler : PoolObject
     {
+        public ObstacleType obstacleType;
+
         [SerializeField] public PlayerInteractionConfig config;
+
+        private void Start()
+        {
+            obstacleType = config.ObstacleType;
+        }
 
         private void OnTriggerEnter2D(Collider2D collision)
         {

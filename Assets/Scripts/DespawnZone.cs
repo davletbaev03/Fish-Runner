@@ -15,15 +15,18 @@ namespace FishRunner.Systems
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!other.CompareTag("Obstacle") && !other.CompareTag("Food") && !other.CompareTag("Coral"))
+            if (!other.TryGetComponent<PoolObject>(out var poolObject))
                 return;
 
-            if(other.CompareTag("Coral"))
+
+            if (other.CompareTag("Coral"))
                 _pool.Release(other.gameObject, ObstacleType.Coral);
             else if (other.CompareTag("Food"))
                 _pool.Release(other.gameObject, ObstacleType.Food);
+            else if (other.CompareTag("Trash"))
+                _pool.Release(other.gameObject, ObstacleType.Trash);
             else
-                _pool.Release(other.gameObject, ObstacleType.NetAndTrash);
+                _pool.Release(other.gameObject, ObstacleType.Net);
         }
     }
 }

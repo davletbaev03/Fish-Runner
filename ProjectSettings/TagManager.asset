@@ -7,6 +7,7 @@ TagManager:
   - Food
   - Obstacle
   - Coral
+  - Trash
   layers:
   - Default
   - TransparentFX

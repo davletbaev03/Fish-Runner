@@ -7,8 +7,9 @@ namespace FishRunner.Systems
     public enum ObstacleType
     {
         Food,
-        NetAndTrash,
-        Coral
+        Net,
+        Coral,
+        Trash
     }
     public interface IMultiObjectPool
     {
@@ -21,11 +22,11 @@ namespace FishRunner.Systems
     {
         private ObjectsFactory _factory;
 
-        private Dictionary<ObstacleType, List<GameObject>> _prefabsConfig;
+        private Dictionary<ObstacleType, GameObject> _prefabsConfig;
 
         private Dictionary<ObstacleType, Queue<GameObject>> _pools = new();
 
-        public MultiObjectPool(Dictionary<ObstacleType, List<GameObject>> prefabs, 
+        public MultiObjectPool(Dictionary<ObstacleType, GameObject> prefabs, 
             Dictionary<ObstacleType, int> counts,
             ObjectsFactory factory)
         {
@@ -38,13 +39,13 @@ namespace FishRunner.Systems
             }
         }
 
-        private void InitializeHeatQueue(List<GameObject> list, int count, ObstacleType type)
+        private void InitializeHeatQueue(GameObject prefab, int count, ObstacleType type)
         {
             _pools[type] = new Queue<GameObject>();
 
             for (int i = 0; i < count; i++)
             {
-                var obj = _factory.Create(list[Random.Range(0, list.Count)]);
+                var obj = _factory.Create(prefab,type);
 
                 obj.transform.position = new Vector3(1f, 10f, 1f);
                 obj.gameObject.SetActive(false);
@@ -60,7 +61,7 @@ namespace FishRunner.Systems
                 return item;
             }
 
-            var obj = _factory.Create(_prefabsConfig[type][Random.Range(0, _prefabsConfig[type].Count)]);
+            var obj = _factory.Create(_prefabsConfig[type], type);
 
             return obj;
         }

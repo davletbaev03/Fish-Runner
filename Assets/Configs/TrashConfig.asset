@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684b4e303b965c3468235855786cf5e7, type: 3}
   m_Name: TrashConfig
   m_EditorClassIdentifier: 
+  ObstacleType: 3
   addPoints: 0
   damage: 1
   killInstant: 0

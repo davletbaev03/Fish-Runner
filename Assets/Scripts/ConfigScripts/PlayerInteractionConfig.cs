@@ -1,3 +1,4 @@
+using FishRunner.Systems;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,9 @@ namespace FishRunner.Configs
     [CreateAssetMenu(menuName = "Player/Interaction Config")]
     public class PlayerInteractionConfig : ScriptableObject
     {
+        [Header("Type")]
+        public ObstacleType ObstacleType = ObstacleType.Coral;
+
         [Header("Points")]
         public int addPoints = 0;
 

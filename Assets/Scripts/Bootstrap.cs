@@ -28,16 +28,20 @@ namespace FishRunner.Systems
         [SerializeField] private SurroundingsGeneration _spawner = null;
         [SerializeField] private DespawnZone _despawnZone = null;
 
-        [SerializeField] private List<GameObject> _coralPrefabs = null;
-        [SerializeField] private List<GameObject> _foodPrefabs = null;
-        [SerializeField] private List<GameObject> _netAndTrashPrefabs = null;
+        [Header("Prefubs")]
+        [SerializeField] private List<GameObject> _prefabs = null;
+        [SerializeField] private List<Sprite> _coralSprites = null;
+        [SerializeField] private List<Sprite> _foodSprites = null;
+        [SerializeField] private List<Sprite> _netSprites = null;
+        [SerializeField] private List<Sprite> _trashSprites = null;
 
-        private Dictionary<ObstacleType, List<GameObject>> _pool = new Dictionary<ObstacleType, List<GameObject>>();
+        private Dictionary<ObstacleType, GameObject> _pool = new Dictionary<ObstacleType, GameObject>();
         private Dictionary<ObstacleType, int> _poolCounts = new Dictionary<ObstacleType, int>
         {
             { ObstacleType.Coral, 8 },
             { ObstacleType.Food, 5 },
-            { ObstacleType.NetAndTrash, 15 }
+            { ObstacleType.Net, 15 },
+            { ObstacleType.Trash, 8 }
         };
 
         private void Awake()
@@ -63,11 +67,21 @@ namespace FishRunner.Systems
                 ServiceLocator.Register<IRecordsManager>(recordsManager);
             }
 
-            _pool[ObstacleType.Coral] = _coralPrefabs;
-            _pool[ObstacleType.Food] = _foodPrefabs;
-            _pool[ObstacleType.NetAndTrash] = _netAndTrashPrefabs;
+            _pool[ObstacleType.Coral] = _prefabs[0];
+            _pool[ObstacleType.Food] = _prefabs[1];
+            _pool[ObstacleType.Net] = _prefabs[2];
+            _pool[ObstacleType.Trash] = _prefabs[3];
 
-            ObjectsFactory factory = new UnityObjectFactory();
+            var factoryDictionary = new Dictionary<ObstacleType, List<Sprite>>
+{
+                { ObstacleType.Coral, _coralSprites },
+                { ObstacleType.Food, _foodSprites },
+                { ObstacleType.Net, _netSprites },
+                { ObstacleType.Trash, _trashSprites }
+            };
+
+            ObjectsFactory factory = new UnityObjectFactory(factoryDictionary);
+
             IMultiObjectPool pool = new MultiObjectPool(_pool, _poolCounts, factory);
             _spawner.Init(pool);
             _despawnZone.Init(pool);

@@ -59,14 +59,14 @@ namespace FishRunner.Systems
                         GameObject obstacle = null;
                         if (UnityEngine.Random.Range(0,2) == 0)
                         {
-                            obstacle = _pool.Get(ObstacleType.Coral);
+                            obstacle = _pool.Get(ObstacleType.Trash);
                             spawnPosition = new Vector3(
                                 _player.Position.x + UnityEngine.Random.Range(17, 22),
                                 UnityEngine.Random.Range(-3, -5), 0);
                         }
                         else
                         {
-                            obstacle = _pool.Get(ObstacleType.NetAndTrash);
+                            obstacle = _pool.Get(ObstacleType.Coral);
                             spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                                 UnityEngine.Random.Range(-2, 3) * 2, _player.Position.z);
                         }
@@ -78,11 +78,11 @@ namespace FishRunner.Systems
                     {
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             -2, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Net).transform.position = spawnPosition;
 
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             2, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Net).transform.position = spawnPosition;
                         _spawnPeriod = 14f;
                         break;
                     }
@@ -90,15 +90,15 @@ namespace FishRunner.Systems
                     {
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             -4, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Net).transform.position = spawnPosition;
 
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             0, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Trash).transform.position = spawnPosition;
 
                         spawnPosition = new Vector3(_player.Position.x + UnityEngine.Random.Range(17, 22),
                             4, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Net).transform.position = spawnPosition;
                         _spawnPeriod = 18f;
                         break;
                     }
@@ -107,16 +107,16 @@ namespace FishRunner.Systems
                         int minus = UnityEngine.Random.Range(0, 2) == 1 ? 1 : -1;
                         spawnPosition = new Vector3(_player.Position.x + 17f,
                             -4 * minus, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Net).transform.position = spawnPosition;
                         spawnPosition = new Vector3(_player.Position.x + 18.5f,
                             -2 * minus, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Trash).transform.position = spawnPosition;
                         spawnPosition = new Vector3(_player.Position.x + 20f,
                             0, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Net).transform.position = spawnPosition;
                         spawnPosition = new Vector3(_player.Position.x + 21.5f,
                             2 * minus, 0);
-                        _pool.Get(ObstacleType.NetAndTrash).transform.position = spawnPosition;
+                        _pool.Get(ObstacleType.Trash).transform.position = spawnPosition;
                         _spawnPeriod = 20f;
                         break;
                     }
