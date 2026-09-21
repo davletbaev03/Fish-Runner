@@ -1,5 +1,4 @@
 using DG.Tweening;
-using FishRunner.Events;
 using FishRunner.Services;
 using FishRunner.Systems;
 using System.Collections;
@@ -8,6 +7,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace FishRunner.UI
 {
@@ -19,20 +19,25 @@ namespace FishRunner.UI
 
         [SerializeField] private TextMeshProUGUI _foodText = null;
 
-        [SerializeField] IPlayerService _player;
+        private IPlayerService _player;
+        private IRecordsManager _recordsManager;
 
         [SerializeField] private List<GameObject> _playerHealth;
         [SerializeField] private Sprite _lostHealth;
 
         [SerializeField] private GameObject _recordUI = null;
-        private IRecordsManager _recordsManager = null;
         [SerializeField] private GameObject _slider = null;
         private float _personalBest = 0;
 
+        [Inject]
+        private void Construct(IPlayerService player, IRecordsManager recordsManager)
+        {
+            _player = player;
+            _recordsManager = recordsManager;
+        }
+
         private void Awake()
         {
-            _player = ServiceLocator.Get<IPlayerService>();
-            _recordsManager = ServiceLocator.Get<IRecordsManager>();
 
             Systems.EventBus.Subscribe<OnRunStarted>(ProgressBarShow);
             Systems.EventBus.Subscribe<OnRunEnded>(Deactivation);

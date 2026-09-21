@@ -7,6 +7,8 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FishRunner.Services;
+using Cysharp.Threading.Tasks;
+using Zenject;
 
 namespace FishRunner.UI
 {
@@ -22,14 +24,20 @@ namespace FishRunner.UI
         [SerializeField] private WindowSettings _windowSettings;
 
         private IAnalyticService _analyticService;
+        private ILoadingService _loadingService;
 
+        [Inject]
+        private void Construct(IAnalyticService analyticService, ILoadingService loadingService)
+        {
+            _analyticService = analyticService;
+            _loadingService = loadingService;
+        }
         private void Awake()
         {
             _startButton.onClick.AddListener(GameLaunch);
             _recordsButton.onClick.AddListener(ShowRecords);
             _settingsButton.onClick.AddListener(ShowSettings);
 
-            _analyticService = ServiceLocator.Get<IAnalyticService>();
         }
         private void Start()
         {
@@ -54,7 +62,12 @@ namespace FishRunner.UI
 
         private void GameLaunch()
         {
-            SceneManager.LoadScene("Game");
+            LoadGame().Forget();
+        }
+
+        private async UniTask LoadGame()
+        {
+            await _loadingService.LoadScene("Game");
         }
 
         private void ShowRecords()

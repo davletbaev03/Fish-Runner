@@ -7,18 +7,12 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using Zenject;
 
 namespace FishRunner.Systems
 {
     public class Bootstrap : MonoBehaviour
     {
-        [Header ("UI")]
-        [SerializeField] private Transform _canvas;
-        [SerializeField] private UIConfig _configUI;
-
-        [Header("Player")]
-        [SerializeField] private PlayerControl _player;
-
         [Header("Player Audio")]
         [SerializeField] private AudioSource _audioSource;
         [SerializeField] private SoundConfig _moveSideClip;
@@ -46,12 +40,6 @@ namespace FishRunner.Systems
 
         private void Awake()
         {
-            var UIService = new UIService(_canvas, _configUI);
-            ServiceLocator.Register<IUIService>(UIService);
-
-            var playerService = new PlayerService(_player);
-            ServiceLocator.Register<IPlayerService>(playerService);
-
             var playerAudioService = new PlayerAudioService(_audioSource, _moveSideClip, _deathClip);
             ServiceLocator.Register<IPlayerAudioService>(playerAudioService);
 
@@ -60,11 +48,6 @@ namespace FishRunner.Systems
                 var saveLoadService = new SaveLoadService();
                 ServiceLocator.Register<ISaveLoadService>(saveLoadService);
 
-                var analyticService = new AnalyticService();
-                ServiceLocator.Register<IAnalyticService>(analyticService);
-
-                var recordsManager = new RecordsManager();
-                ServiceLocator.Register<IRecordsManager>(recordsManager);
             }
 
             _pool[ObstacleType.Coral] = _prefabs[0];

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Linq;
 using FishRunner.Services;
 using FishRunner.Configs;
+using Zenject;
 
 namespace FishRunner.UI
 {
@@ -19,11 +20,16 @@ namespace FishRunner.UI
         [SerializeField] private Transform _content;
         [SerializeField] private RecordItemUI _itemPrefab;
 
+        [Inject]
+        private void Construct(IRecordsManager recordsManager)
+        {
+            _recordsManager = recordsManager;
+        }
+
         void Start()
         {
             _exitButton.onClick.AddListener(CloseLeaderboard);
 
-            _recordsManager = ServiceLocator.Get<IRecordsManager>();
             SetLeaderboard(_recordsManager.ScoreData.scores);
 
             Hide();

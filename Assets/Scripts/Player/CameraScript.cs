@@ -1,9 +1,9 @@
 using DG.Tweening;
-using FishRunner.Events;
 using FishRunner.Services;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace FishRunner.Systems
 {
@@ -11,13 +11,21 @@ namespace FishRunner.Systems
     {
         private IPlayerService _player;
         [SerializeField] private AudioSource _source;
+
+        [Inject]
+        private void Construct(IPlayerService player)
+        {
+            _player = player;
+        }
+
         void Start()
         {
-            _player = ServiceLocator.Get<IPlayerService>();
             if (_player == null)
-                this.transform.position = new Vector3(_player.Position.x + 5, transform.position.y, transform.position.z);
+                this.transform.position = new Vector3(_player.Position.x + 5, 
+                    transform.position.y, transform.position.z);
             EventBus.Subscribe<OnRunEnded>(StopMusic);
         }
+
         void Update()
         {
             this.transform.position = new Vector3(_player.Position.x + 5, transform.position.y, transform.position.z);

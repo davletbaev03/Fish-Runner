@@ -1,4 +1,3 @@
-using FishRunner.Events;
 using FishRunner.Services;
 using FishRunner.UI;
 using System;
@@ -7,23 +6,35 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
+using Zenject;
 
 namespace FishRunner.Systems
 {
     public class GameController : MonoBehaviour
     {
         private IRecordsManager _recordsManager = null;
-        private IAnalyticService _analyticService;
-        private IUIService _uIService;
+        private IAnalyticService _analyticService = null;
+        private IUIService _uIService = null;
+
+        private void Awake()
+        {
+            Debug.Log("GAME CONTROLLER AWAKE");
+        }
+
+        [Inject]
+        private void Construct(IRecordsManager recordsManager,IAnalyticService analyticService,
+            IUIService uiService)
+        {
+            Debug.Log("CONSTRUCT GAME CONTROLLER");
+            _recordsManager = recordsManager;
+            _analyticService = analyticService;
+            _uIService = uiService;
+        }
 
         private void Start()
         {
             EventBus.Subscribe<OnRunEnded>(AnalyticRunEnd);
             EventBus.Subscribe<OnRunStarted>(AnalyticRunStart);
-
-            _analyticService = ServiceLocator.Get<IAnalyticService>();
-            _recordsManager = ServiceLocator.Get<IRecordsManager>();
-            _uIService = ServiceLocator.Get<IUIService>();
 
             InitializeUI();
 

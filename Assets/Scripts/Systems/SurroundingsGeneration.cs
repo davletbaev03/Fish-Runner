@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace FishRunner.Systems
 {
@@ -15,10 +16,19 @@ namespace FishRunner.Systems
 
         private IMultiObjectPool _pool;
 
-        
+        private bool _isGamePaused = false;
+
+        [Inject]
+        private void Construct(IPlayerService player)
+        {
+            _player = player;
+        }
+
         void Start()
         {
-            _player = ServiceLocator.Get<IPlayerService>();
+
+            EventBus.Subscribe<OnRunPaused>(_ => _isGamePaused = true);
+            EventBus.Subscribe<OnRunUnpaused>(_ => _isGamePaused = false);
 
             InstantiateObstacles();
             InstantiateFood();
@@ -31,7 +41,7 @@ namespace FishRunner.Systems
 
         void Update()
         {
-            if (_player.IsGameEnd)
+            if (_player.IsGameEnd || _isGamePaused)
                 return;
 
             if (Time.timeScale > 0f && (DateTime.Now - _spawnTime).TotalSeconds > _spawnPeriod / _player.Speed && UnityEngine.Random.Range(1, 100) > 50)
@@ -122,6 +132,12 @@ namespace FishRunner.Systems
                     }
             }
             _spawnTime = DateTime.Now;
+        }
+
+        private void OnDestroy()
+        {
+            EventBus.Unsubscribe<OnRunPaused>(_ => _isGamePaused = true);
+            EventBus.Unsubscribe<OnRunUnpaused>(_ => _isGamePaused = false);
         }
     }
 }

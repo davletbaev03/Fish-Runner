@@ -1,6 +1,5 @@
 using DG.Tweening;
 using FishRunner.Configs;
-using FishRunner.Events;
 using FishRunner.Services;
 using FishRunner.Systems;
 using Spine.Unity;

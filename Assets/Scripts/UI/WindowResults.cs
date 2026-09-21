@@ -1,6 +1,5 @@
 using DG.Tweening;
 using FishRunner.Configs;
-using FishRunner.Events;
 using FishRunner.Services;
 using FishRunner.Systems;
 using System.Collections;
@@ -11,6 +10,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
+using Zenject;
 
 namespace FishRunner.UI
 {
@@ -30,9 +30,14 @@ namespace FishRunner.UI
 
         private Tween _pulseTween;
 
+        [Inject]
+        private void Construct(IRecordsManager recordsManager)
+        {
+            _recordsManager = recordsManager;
+        }
+
         void Start()
         {
-            _recordsManager = ServiceLocator.Get<IRecordsManager>();
 
             Systems.EventBus.Subscribe<OnRunEnded>(ShowWindowResults);
 

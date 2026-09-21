@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 using FishRunner.Systems;
-using FishRunner.Events;
 using FishRunner.Configs;
 
 namespace FishRunner.UI
