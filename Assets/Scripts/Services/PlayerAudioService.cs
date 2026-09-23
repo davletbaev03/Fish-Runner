@@ -2,35 +2,38 @@ using FishRunner.Configs;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 using static Unity.VisualScripting.Member;
 
 namespace FishRunner.Services
 {
     public class PlayerAudioService : IPlayerAudioService
     {
-        private AudioSource audioSource;
-        private SoundConfig moveSideClip;
-        private SoundConfig deathClip;
+        private AudioSource _audioSource;
+        private SoundConfig _moveSideClip;
+        private SoundConfig _deathClip;
 
-        public PlayerAudioService(AudioSource audioSource, SoundConfig moveSideClip, SoundConfig deathClip)
+        public PlayerAudioService(AudioSource audioSource,
+            [Inject(Id = "Move")] SoundConfig moveSideClip,
+            [Inject(Id = "Death")] SoundConfig deathClip)
         {
-            this.audioSource = audioSource;
-            this.moveSideClip = moveSideClip;
-            this.deathClip = deathClip;
+            _audioSource = audioSource;
+            _moveSideClip = moveSideClip;
+            _deathClip = deathClip;
         }
 
-        public AudioSource AudioSource => audioSource;
-        public SoundConfig MoveSideClip => moveSideClip;
-        public SoundConfig DeathClip => deathClip;
+        public AudioSource AudioSource => _audioSource;
+        public SoundConfig MoveSideClip => _moveSideClip;
+        public SoundConfig DeathClip => _deathClip;
 
         public void Play(SoundConfig sound)
         {
             if (sound == null || sound.clip == null)
                 return;
 
-            audioSource.pitch = sound.pitch;
-            audioSource.volume = sound.volume;
-            audioSource.PlayOneShot(sound.clip);
+            _audioSource.pitch = sound.pitch;
+            _audioSource.volume = sound.volume;
+            _audioSource.PlayOneShot(sound.clip);
         }
     }
 }

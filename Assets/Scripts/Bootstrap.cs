@@ -13,11 +13,6 @@ namespace FishRunner.Systems
 {
     public class Bootstrap : MonoBehaviour
     {
-        [Header("Player Audio")]
-        [SerializeField] private AudioSource _audioSource;
-        [SerializeField] private SoundConfig _moveSideClip;
-        [SerializeField] private SoundConfig _deathClip;
-
         [Header("Other")]
         [SerializeField] private SurroundingsGeneration _spawner = null;
         [SerializeField] private DespawnZone _despawnZone = null;
@@ -40,16 +35,6 @@ namespace FishRunner.Systems
 
         private void Awake()
         {
-            var playerAudioService = new PlayerAudioService(_audioSource, _moveSideClip, _deathClip);
-            ServiceLocator.Register<IPlayerAudioService>(playerAudioService);
-
-            if (!ServiceLocator.Services.ContainsKey(typeof(ISaveLoadService)))
-            {
-                var saveLoadService = new SaveLoadService();
-                ServiceLocator.Register<ISaveLoadService>(saveLoadService);
-
-            }
-
             _pool[ObstacleType.Coral] = _prefabs[0];
             _pool[ObstacleType.Food] = _prefabs[1];
             _pool[ObstacleType.Net] = _prefabs[2];

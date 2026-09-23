@@ -1,9 +1,10 @@
+using FishRunner.Configs;
+using FishRunner.UI;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using FishRunner.UI;
 using TMPro;
-using FishRunner.Configs;
+using UnityEngine;
+using Zenject;
 
 namespace FishRunner.Services
 {
@@ -13,10 +14,13 @@ namespace FishRunner.Services
 
         private UIConfig _config;
 
-        public UIService(Transform canvas, UIConfig config)
+        private readonly DiContainer _container;
+
+        public UIService(Transform canvas, UIConfig config, DiContainer container)
         {
             _canvas = canvas;
             _config = config;
+            _container = container;
         }
 
         public void Instantiate(string id)
@@ -27,7 +31,7 @@ namespace FishRunner.Services
                 return;
             }
 
-            Object.Instantiate(prefab, _canvas);
+            _container.InstantiatePrefab(prefab, _canvas);
         }
     }
 }

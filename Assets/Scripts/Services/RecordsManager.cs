@@ -48,12 +48,11 @@ namespace FishRunner.Services
             set { scoreData.scores = value; }
         }
 
-        public RecordsManager()
+        public RecordsManager(ISaveLoadService saveLoadService)
         {
-            _saveLoadService = ServiceLocator.Get<ISaveLoadService>();
-
             _filePath = Path.Combine(Application.persistentDataPath, "scores.json");
-            //Clear();
+            _saveLoadService = saveLoadService;
+
             Load();
             InitPlayer();
         }

@@ -17,8 +17,14 @@ namespace FishRunner.Systems
         [Header("Player")]
         [SerializeField] private PlayerControl _player;
 
+        [Header("Player Audio")]
+        [SerializeField] private AudioSource _audioSource;
+        [SerializeField] private SoundConfig _moveSideClip;
+        [SerializeField] private SoundConfig _deathClip;
+
         [Header("Other")]
         [SerializeField] private GameController _gameController;
+
 
         public override void InstallBindings()
         {
@@ -46,6 +52,25 @@ namespace FishRunner.Systems
 
             Container.Bind<IRecordsManager>()
                 .To<RecordsManager>()
+                .AsSingle();
+
+            Container.Bind<ISaveLoadService>()
+                .To<SaveLoadService>()
+                .AsSingle();
+
+            Container.Bind<AudioSource>()
+                .FromInstance(_audioSource);
+
+            Container.Bind<SoundConfig>()
+                .WithId("Move")
+                .FromInstance(_moveSideClip);
+
+            Container.Bind<SoundConfig>()
+                .WithId("Death")
+                .FromInstance(_deathClip);
+
+            Container.Bind<IPlayerAudioService>()
+                .To<PlayerAudioService>()
                 .AsSingle();
         }
     }

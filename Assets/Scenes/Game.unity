@@ -429,6 +429,9 @@ MonoBehaviour:
   _canvas: {fileID: 138766360}
   _configUI: {fileID: 11400000, guid: b5731d120c12ac8428251157df518c16, type: 2}
   _player: {fileID: 962347542}
+  _audioSource: {fileID: 962347543}
+  _moveSideClip: {fileID: 11400000, guid: 75ff9061003008143b8af88a13eca8b2, type: 2}
+  _deathClip: {fileID: 11400000, guid: 9006e6128e732524fb7348fa7ff88e30, type: 2}
   _gameController: {fileID: 2046904796}
 --- !u!1 &519420028
 GameObject:

@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
+using Zenject;
 
 namespace FishRunner.Player
 {
@@ -52,10 +53,14 @@ namespace FishRunner.Player
             get { return _food; }
         }
 
+        [Inject]
+        private void Construct(IPlayerAudioService playerAudioService)
+        {
+            _playerAudio = playerAudioService;
+        }
+
         private void Start()
         {
-            _playerAudio = ServiceLocator.Get<IPlayerAudioService>();
-
             EventBus.Subscribe<ChangeSkeletonAnim>(PlayAnimation);
 
             _speed = _playerParams.speed;

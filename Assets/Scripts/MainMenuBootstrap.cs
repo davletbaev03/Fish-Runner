@@ -18,8 +18,5 @@ public class MainMenuBootstrap : MonoBehaviour
 
         var saveLoadService = new SaveLoadService();
         ServiceLocator.Register<ISaveLoadService>(saveLoadService);
-
-        var recordsManager = new RecordsManager();
-        ServiceLocator.Register<IRecordsManager>(recordsManager);
     }
 }
