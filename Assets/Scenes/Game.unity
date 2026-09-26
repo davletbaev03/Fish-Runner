@@ -334,16 +334,30 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 374629498}
-  - component: {fileID: 374629497}
   - component: {fileID: 374629499}
   m_Layer: 0
-  m_Name: Bootstrap
+  m_Name: GameInstaller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &374629497
+--- !u!4 &374629498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374629496}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.3460035, y: 0.637922, z: -0.004111666}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &374629499
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -352,14 +366,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 374629496}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b20bb6e4474324040bb7b2e0e063d711, type: 3}
+  m_Script: {fileID: 11500000, guid: ceb1faed7d045c64580c62af84b25921, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _canvas: {fileID: 138766360}
+  _configUI: {fileID: 11400000, guid: b5731d120c12ac8428251157df518c16, type: 2}
+  _player: {fileID: 962347542}
   _audioSource: {fileID: 962347543}
   _moveSideClip: {fileID: 11400000, guid: 75ff9061003008143b8af88a13eca8b2, type: 2}
   _deathClip: {fileID: 11400000, guid: 9006e6128e732524fb7348fa7ff88e30, type: 2}
-  _spawner: {fileID: 2046904794}
-  _despawnZone: {fileID: 524965382}
   _prefabs:
   - {fileID: 6258528407063938964, guid: 30d310c8c511f2641a0bead35718b7d0, type: 3}
   - {fileID: 5206040596135129466, guid: 69be54ebde8c8cf468c81226e6478bea, type: 3}
@@ -399,39 +414,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: fb94adfb83ff47a4bba9fb0b97eccd89, type: 3}
   - {fileID: 21300000, guid: 8f0457dc092990b4cacca8639d0f72d8, type: 3}
   - {fileID: 21300000, guid: 6636de391e924b44e9643e8553c0a721, type: 3}
---- !u!4 &374629498
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 374629496}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.3460035, y: 0.637922, z: -0.004111666}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &374629499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 374629496}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb1faed7d045c64580c62af84b25921, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _canvas: {fileID: 138766360}
-  _configUI: {fileID: 11400000, guid: b5731d120c12ac8428251157df518c16, type: 2}
-  _player: {fileID: 962347542}
-  _audioSource: {fileID: 962347543}
-  _moveSideClip: {fileID: 11400000, guid: 75ff9061003008143b8af88a13eca8b2, type: 2}
-  _deathClip: {fileID: 11400000, guid: 9006e6128e732524fb7348fa7ff88e30, type: 2}
+  _spawner: {fileID: 2046904794}
+  _despawnZone: {fileID: 524965382}
   _gameController: {fileID: 2046904796}
 --- !u!1 &519420028
 GameObject:

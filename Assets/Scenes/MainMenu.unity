@@ -1308,8 +1308,9 @@ GameObject:
   m_Component:
   - component: {fileID: 892641398}
   - component: {fileID: 892641399}
+  - component: {fileID: 892641400}
   m_Layer: 0
-  m_Name: Bootstrap
+  m_Name: MainMenuInstaller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1339,10 +1340,43 @@ MonoBehaviour:
   m_GameObject: {fileID: 892641396}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5549f5ade279d064fbea21e06dbba9d9, type: 3}
+  m_Script: {fileID: 11500000, guid: 215a58fe336b42243b44b9d76a4a4a9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _windowLoadingScreen: {fileID: 732468239}
+--- !u!114 &892641400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 892641396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89715ad69b973a14899afa2c6730b30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scriptableObjectInstallers: []
+  _monoInstallers:
+  - {fileID: 892641399}
+  _installerPrefabs: []
+  _findSiblingMonoInstallers: 0
+  _autoRun: 1
+  OnPreInstall:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPostInstall:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPreResolve:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPostResolve:
+    m_PersistentCalls:
+      m_Calls: []
+  _parentNewObjectsUnderSceneContext: 0
+  _contractNames: []
+  _parentContractNames: []
 --- !u!1001 &896930106
 PrefabInstance:
   m_ObjectHideFlags: 0

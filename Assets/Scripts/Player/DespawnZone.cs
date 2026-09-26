@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace FishRunner.Systems
 {
@@ -8,6 +9,7 @@ namespace FishRunner.Systems
     {
         IMultiObjectPool _pool = null;
 
+        [Inject]
         public void Init(IMultiObjectPool pool)
         {
             _pool = pool;

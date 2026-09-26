@@ -19,9 +19,10 @@ namespace FishRunner.Systems
         private bool _isGamePaused = false;
 
         [Inject]
-        private void Construct(IPlayerService player)
+        private void Construct(IPlayerService player, IMultiObjectPool pool)
         {
             _player = player;
+            _pool = pool;
         }
 
         void Start()
